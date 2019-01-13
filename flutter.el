@@ -83,12 +83,14 @@ be created that sends the key to the `flutter` process."
           (flutter-mode)))
       ,@body)))
 
+;;;###autoload
 (defun flutter-run ()
   "Execute `flutter run` inside Emacs."
   (interactive)
   (flutter--with-run-proc
    (pop-to-buffer-same-window buffer)))
 
+;;;###autoload
 (defun flutter-run-or-hot-reload ()
   "Start `flutter run` or hot-reload if already running."
   (interactive)
@@ -110,6 +112,7 @@ be created that sends the key to the `flutter` process."
   "Helper function to initialize Flutter."
   (setq comint-process-echoes nil))
 
+;;;###autoload
 (define-derived-mode flutter-mode comint-mode "Flutter"
   "Major mode for `flutter-run'.
 

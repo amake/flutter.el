@@ -1,6 +1,6 @@
 ;;; flutter.el --- Tools for working with Flutter SDK -*- lexical-binding: t -*-
 
-;; Copyright (C) 2018 Aaron Madlon-Kay
+;; Copyright (C) 2018-2019 Aaron Madlon-Kay
 
 ;; Author: Aaron Madlon-Kay
 ;; Version: 0.1.0

@@ -114,11 +114,7 @@ be created that sends the key to the `flutter` process."
   "Major mode for `flutter-run'.
 
 \\{flutter-mode-map}"
-  (setq comint-prompt-read-only t)
-  ;; (set (make-local-variable 'paragraph-separate) "\\'")
-  ;; (set (make-local-variable 'font-lock-defaults) '(flutter-font-lock-keywords t))
-  ;; (set (make-local-variable 'paragraph-start) flutter-prompt-regexp)
-  )
+  (setq comint-prompt-read-only t))
 
 (add-hook 'flutter-mode-hook #'flutter--initialize)
 

@@ -52,7 +52,7 @@
     ("q" . quit)))
 
 (defvar flutter-mode-map
-  (nconc (make-sparse-keymap) comint-mode-map)
+  (copy-keymap comint-mode-map)
   "Basic mode map for `flutter-run'.")
 
 (defmacro flutter--make-interactive-function (key name)

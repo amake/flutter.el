@@ -1,3 +1,5 @@
+[![MELPA](https://melpa.org/packages/flutter-badge.svg)](https://melpa.org/#/flutter)
+
 # flutter.el
 
 Emacs tools for working with the [Flutter SDK](https://flutter.io/)
@@ -10,6 +12,14 @@ process. It's designed to work together with
 configuration below binds `flutter-run-or-hot-reload` to <kbd>C-M-x</kbd> in
 `dart-mode`. While editing your Dart code, just hit <kbd>C-M-x</kbd> to either
 run your app, or if it's already running, to hot-reload it.
+
+# Installation
+
+You can install from [MELPA](https://melpa.org/#/flutter) with `package.el`:
+
+```
+M-x package-install flutter
+```
 
 # Configuration
 

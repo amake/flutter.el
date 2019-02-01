@@ -28,7 +28,8 @@ necessary if the `flutter` binary is on your `PATH`.
 
 ## Example
 
-Assuming you put the Flutter SDK in `/Applications/flutter`:
+Using [`use-package`](https://jwiegley.github.io/use-package/) and assuming you
+put the Flutter SDK in `/Applications/flutter`:
 
 ```elisp
 (use-package dart-mode

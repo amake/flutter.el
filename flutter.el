@@ -95,23 +95,34 @@ be created that sends the key to the `flutter` process."
            ,@body)
        (error "Root of Flutter project not found"))))
 
-(defmacro flutter--with-run-proc (&rest body)
-  "Execute BODY while ensuring an inferior `flutter` process is running."
+(defmacro flutter--with-run-proc (args &rest body)
+  "Execute BODY while ensuring an inferior `flutter` process is running.
+
+ARGS is a space-delimited string of CLI flags passed to
+`flutter`, and can be nil."
   `(flutter--from-project-root
     (let* ((buffer (get-buffer-create flutter-buffer-name))
-           (alive (flutter--running-p)))
+           (alive (flutter--running-p))
+           (arglist (if ,args (split-string ,args))))
       (unless alive
-        (make-comint-in-buffer "Flutter" buffer (flutter-build-command) nil "run"))
+        (apply #'make-comint-in-buffer "Flutter" buffer (flutter-build-command) nil "run" arglist))
       (with-current-buffer buffer
         (unless (derived-mode-p 'flutter-mode)
           (flutter-mode)))
       ,@body)))
 
 ;;;###autoload
-(defun flutter-run ()
-  "Execute `flutter run` inside Emacs."
-  (interactive)
+(defun flutter-run (&optional args)
+  "Execute `flutter run` inside Emacs.
+
+ARGS is a space-delimited string of CLI flags passed to
+`flutter`, and can be nil.  Call with a prefix to be prompted for
+args."
+  (interactive
+   (list (when current-prefix-arg
+           (read-string "Args: "))))
   (flutter--with-run-proc
+   args
    (pop-to-buffer-same-window buffer)))
 
 ;;;###autoload
@@ -129,6 +140,7 @@ be created that sends the key to the `flutter` process."
 (defun flutter--send-command (command)
   "Send COMMAND to a running Flutter process."
   (flutter--with-run-proc
+   nil
    (let ((proc (get-buffer-process flutter-buffer-name)))
      (comint-send-string proc command))))
 

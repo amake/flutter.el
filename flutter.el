@@ -68,7 +68,7 @@
 `flutter` in interactive mode.  A function `flutter-NAME' will \
 be created that sends the key to the `flutter` process."
   `(let ((func (flutter--make-interactive-function ,key ,name)))
-    (define-key flutter-mode-map ,key func)))
+     (define-key flutter-mode-map ,key func)))
 
 (defmacro flutter-register-keys (key-alist)
   "Call `flutter-register-key' on all (key . name) pairs in KEY-ALIST."
@@ -90,10 +90,10 @@ be created that sends the key to the `flutter` process."
 (defmacro flutter--from-project-root (&rest body)
   "Execute BODY with the `default-directory' set to the project root."
   `(let ((root (flutter-get-project-root)))
-    (if root
-        (let ((default-directory root))
-          ,@body)
-      (error "Root of Flutter project not found"))))
+     (if root
+         (let ((default-directory root))
+           ,@body)
+       (error "Root of Flutter project not found"))))
 
 (defmacro flutter--with-run-proc (&rest body)
   "Execute BODY while ensuring an inferior `flutter` process is running."

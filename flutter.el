@@ -59,7 +59,8 @@
   "Basic mode map for `flutter-run'.")
 
 (defun flutter--make-interactive-function (key name)
-  "Define a function NAME prefixed with 'flutter-' that sends KEY to the `flutter` process."
+  "Define a function NAME prefixed with 'flutter-' that sends KEY
+to the `flutter` process."
   (let* ((name-str (symbol-name name))
          (funcname (intern (concat "flutter-" name-str))))
     (defalias funcname
@@ -69,9 +70,9 @@
          (flutter--send-command ,key)))))
 
 (defun flutter-register-key (key name)
-  "Register a KEY press with associated NAME recognized by \
-`flutter` in interactive mode.  A function `flutter-NAME' will \
-be created that sends the key to the `flutter` process."
+  "Register a KEY press with associated NAME recognized by
+`flutter` in interactive mode.  A function `flutter-NAME' will be
+created that sends the key to the `flutter` process."
   (let ((func (flutter--make-interactive-function key name)))
     (define-key flutter-mode-map key func)))
 
@@ -86,7 +87,8 @@ be created that sends the key to the `flutter` process."
 ;;; Internal utilities
 
 (defmacro flutter--from-project-root (&rest body)
-  "Execute BODY with the `default-directory' set to the project root."
+  "Execute BODY with the `default-directory' set to the project
+root."
   `(let ((root (flutter-get-project-root)))
      (if root
          (let ((default-directory root))
@@ -110,7 +112,8 @@ ARGS is a space-delimited string of CLI flags passed to
       ,@body)))
 
 (defun flutter--running-p ()
-  "Return non-nil if an inferior `flutter` process is already running."
+  "Return non-nil if an inferior `flutter` process is already
+running."
   (comint-check-proc flutter-buffer-name))
 
 (defun flutter--send-command (command)

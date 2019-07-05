@@ -35,6 +35,9 @@
 (defvar flutter-sdk-path nil
   "Path to Flutter SDK.")
 
+
+;;; Key bindings
+
 (defconst flutter-interactive-keys-alist
   '(("r" . hot-reload)
     ("R" . hot-restart)
@@ -79,14 +82,8 @@ be created that sends the key to the `flutter` process."
 
 (flutter-register-keys flutter-interactive-keys-alist)
 
-(defun flutter-build-command ()
-  "Build flutter command to execute."
-  (let ((bin (when flutter-sdk-path (concat flutter-sdk-path "bin/"))))
-    (concat (or bin "") "flutter")))
-
-(defun flutter-get-project-root ()
-  "Find the root of the current project."
-  (locate-dominating-file default-directory "pubspec.yaml"))
+
+;;; Internal utilities
 
 (defmacro flutter--from-project-root (&rest body)
   "Execute BODY with the `default-directory' set to the project root."
@@ -112,6 +109,33 @@ ARGS is a space-delimited string of CLI flags passed to
           (flutter-mode)))
       ,@body)))
 
+(defun flutter--running-p ()
+  "Return non-nil if an inferior `flutter` process is already running."
+  (comint-check-proc flutter-buffer-name))
+
+(defun flutter--send-command (command)
+  "Send COMMAND to a running Flutter process."
+  (flutter--with-run-proc
+   nil
+   (let ((proc (get-buffer-process flutter-buffer-name)))
+     (comint-send-string proc command))))
+
+(defun flutter--initialize ()
+  "Helper function to initialize Flutter."
+  (setq comint-process-echoes nil))
+
+
+;;; Public interface
+
+(defun flutter-build-command ()
+  "Build flutter command to execute."
+  (let ((bin (when flutter-sdk-path (concat flutter-sdk-path "bin/"))))
+    (concat (or bin "") "flutter")))
+
+(defun flutter-get-project-root ()
+  "Find the root of the current project."
+  (locate-dominating-file default-directory "pubspec.yaml"))
+
 ;;;###autoload
 (defun flutter-run (&optional args)
   "Execute `flutter run` inside Emacs.
@@ -133,21 +157,6 @@ args."
   (if (flutter--running-p)
       (flutter-hot-reload)
     (flutter-run)))
-
-(defun flutter--running-p ()
-  "Return non-nil if an inferior `flutter` process is already running."
-  (comint-check-proc flutter-buffer-name))
-
-(defun flutter--send-command (command)
-  "Send COMMAND to a running Flutter process."
-  (flutter--with-run-proc
-   nil
-   (let ((proc (get-buffer-process flutter-buffer-name)))
-     (comint-send-string proc command))))
-
-(defun flutter--initialize ()
-  "Helper function to initialize Flutter."
-  (setq comint-process-echoes nil))
 
 ;;;###autoload
 (define-derived-mode flutter-mode comint-mode "Flutter"

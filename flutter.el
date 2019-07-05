@@ -30,6 +30,7 @@
 
 (require 'comint)
 (require 'flutter-project)
+(require 'flutter-l10n)
 
 (defconst flutter-buffer-name "*Flutter*")
 

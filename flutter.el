@@ -29,6 +29,7 @@
 ;;; Code:
 
 (require 'comint)
+(require 'flutter-project)
 
 (defconst flutter-buffer-name "*Flutter*")
 
@@ -89,7 +90,7 @@ created that sends the key to the `flutter` process."
 (defmacro flutter--from-project-root (&rest body)
   "Execute BODY with the `default-directory' set to the project
 root."
-  `(let ((root (flutter-get-project-root)))
+  `(let ((root (flutter-project-get-root)))
      (if root
          (let ((default-directory root))
            ,@body)
@@ -134,10 +135,6 @@ running."
   "Build flutter command to execute."
   (let ((bin (when flutter-sdk-path (concat flutter-sdk-path "bin/"))))
     (concat (or bin "") "flutter")))
-
-(defun flutter-get-project-root ()
-  "Find the root of the current project."
-  (locate-dominating-file default-directory "pubspec.yaml"))
 
 ;;;###autoload
 (defun flutter-run (&optional args)

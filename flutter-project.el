@@ -33,5 +33,16 @@
   "Find the root of the current project."
   (locate-dominating-file default-directory "pubspec.yaml"))
 
+(defun flutter-project-get-name ()
+  "Return the name of the current project."
+  (let ((pubspec (concat (flutter-project-get-root) "pubspec.yaml")))
+    (with-temp-buffer
+      (insert-file-contents pubspec)
+      (goto-char 1)
+      ;; Pubspec name must be [a-z0-9_]
+      ;; https://dart.dev/tools/pub/pubspec#name
+      (re-search-forward "^name:[ \t]*\\([a-z][a-z0-9_]+\\)")
+      (match-string 1))))
+
 (provide 'flutter-project)
 ;;; flutter-project.el ends here

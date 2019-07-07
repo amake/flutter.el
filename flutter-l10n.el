@@ -159,6 +159,51 @@ FILE."
         nil
       response)))
 
+(defun flutter-l10n--nesting-at-point ()
+  "Build a list indicating the nested structure of the code at point.
+
+Each item is of the form (DELIMITER . POSITION), in order of
+decreasing position (from leaf to root).  Assumes that code is
+well-formed."
+  (let (structure
+        (curr-point (point)))
+    (save-excursion
+      (goto-char 1)
+      (while (re-search-forward "//\\|[][(){}]" curr-point t)
+        (let ((char (match-string 0)))
+          (cond ((string= "//" char)
+                 (end-of-line))
+                ((cl-search char "([{")
+                 (push `(,char . ,(match-beginning 0)) structure))
+                ((cl-search char ")]}")
+                 (pop structure))))))
+    structure))
+
+(defun flutter-l10n--find-applied-consts ()
+  "Find the `const` keywords that apply to point.
+
+Result is a list of (BEGINING . END) in decreasing order (from
+leaf to root)."
+  (let (results
+        (structure (flutter-l10n--nesting-at-point)))
+    (save-excursion
+      (while structure
+       (let* ((delim (pop structure))
+              (token (car delim))
+              (position (cdr delim))
+              (bound (cdar structure)))
+         (goto-char (- position (length token)))
+         (when (and (re-search-backward "\\b[a-z]+\\b" bound t)
+                    (string= "const" (match-string 0)))
+           ;; TODO: Fix false positive when const in comment
+           (push `(,(match-beginning 0) . ,(match-end 0)) results)))))
+    (nreverse results)))
+
+(defun flutter-l10n--delete-dominating-consts ()
+  "Delete the `const` keywords that apply to point."
+  (dolist (pos (flutter-l10n--find-applied-consts))
+    (delete-region (car pos) (cdr pos))))
+
 
 ;;; Public interface
 
@@ -180,6 +225,7 @@ ring for yanking into the l10n class."
                         (flutter-l10n--strip-quotes value))))
     (delete-region beg end)
     (insert reference)
+    (flutter-l10n--delete-dominating-consts)
     (flutter-l10n--append-to-current-line comment)
     (unless (flutter-l10n--file-imported-p flutter-l10n-file)
       (flutter-l10n--import-file flutter-l10n-file))
@@ -204,6 +250,7 @@ of the l10n class indicated by `flutter-l10n-file'."
                       (comment (flutter-l10n--gen-comment
                                 (flutter-l10n--strip-quotes value))))
             (replace-match reference)
+            (flutter-l10n--delete-dominating-consts)
             (flutter-l10n--append-to-current-line comment)
             (unless (member id history)
               (flutter-l10n--append-to-l10n-file definition))

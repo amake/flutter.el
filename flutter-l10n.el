@@ -42,9 +42,13 @@
   "The name of the class that holds the application's string
 definitions.")
 
+(put 'flutter-l10n-classname 'safe-local-variable #'stringp)
+
 (defvar-local flutter-l10n-file "lib/app_l10n.dart"
   "The name of the file relative to the project root that holds
 the string definitions class.")
+
+(put 'flutter-l10n-file 'safe-local-variable #'stringp)
 
 
 ;;; Code generation

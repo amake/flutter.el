@@ -9,12 +9,17 @@ COMPILE_CMD = $(EMACS) -Q -L . \
 	-batch -f batch-byte-compile
 EL_FILES := $(wildcard *.el)
 
-.PHONY: test test-default test-25 test-24
-test: test-default test-25 test-24
+.PHONY: test
+test: test-default
 
-.PHONY: test-default
-test-default test-25 test-24: $(EL_FILES)
+.PHONY: test-ci
+test-ci: test-26 test-25 test-24
+
+.PHONY: test-default test-26 test-25 test-24
+test-default test-26 test-25 test-24: $(EL_FILES)
 	$(COMPILE_CMD) $(^)
+
+test-26: EMACS := $(call EMACS_VER,26.2)
 
 test-25: EMACS := $(call EMACS_VER,25.3)
 

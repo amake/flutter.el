@@ -240,7 +240,7 @@ of the l10n class indicated by `flutter-l10n-file'."
   (save-excursion
     (goto-char 1)
     (let (history)
-      (while (re-search-forward "\\([\"']\\)[^\\1]+?\\1" nil t)
+      (while (re-search-forward "'[^']+?'\\|\"[^\"]\"" nil t)
         (unless (flutter-l10n--looking-at-import-p)
           (when-let* ((value (flutter-l10n--normalize-string
                               (match-string 0)))

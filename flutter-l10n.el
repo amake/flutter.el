@@ -5,7 +5,7 @@
 ;; Author: Aaron Madlon-Kay
 ;; Version: 0.1.0
 ;; URL: https://github.com/amake/flutter.el
-;; Package-Requires: ((emacs "26"))
+;; Package-Requires: ((emacs "24.5"))
 ;; Keywords: languages
 
 ;; This file is not part of GNU Emacs.
@@ -213,23 +213,24 @@ leaf to root)."
 The corresponding string definition will be put on the kill
 ring for yanking into the l10n class."
   (interactive)
-  (when-let* ((bounds (bounds-of-thing-at-point 'dart-string))
-              (beg (car bounds))
-              (end (cdr bounds))
-              (value (flutter-l10n--normalize-string
-                        (buffer-substring beg end)))
-              (id (flutter-l10n--read-id))
-              (definition (flutter-l10n--gen-string-def id value))
-              (reference (flutter-l10n--gen-string-ref id))
-              (comment (flutter-l10n--gen-comment
-                        (flutter-l10n--strip-quotes value))))
-    (delete-region beg end)
-    (insert reference)
-    (flutter-l10n--delete-dominating-consts)
-    (flutter-l10n--append-to-current-line comment)
-    (unless (flutter-l10n--file-imported-p flutter-l10n-file)
-      (flutter-l10n--import-file flutter-l10n-file))
-    (kill-new definition)))
+  (let* ((bounds (bounds-of-thing-at-point 'dart-string))
+         (beg (car bounds))
+         (end (cdr bounds))
+         (value (flutter-l10n--normalize-string
+                 (buffer-substring beg end)))
+         (id (flutter-l10n--read-id))
+         (definition (flutter-l10n--gen-string-def id value))
+         (reference (flutter-l10n--gen-string-ref id))
+         (comment (flutter-l10n--gen-comment
+                   (flutter-l10n--strip-quotes value))))
+    (when id ; null id means user chose to skip
+      (delete-region beg end)
+      (insert reference)
+      (flutter-l10n--delete-dominating-consts)
+      (flutter-l10n--append-to-current-line comment)
+      (unless (flutter-l10n--file-imported-p flutter-l10n-file)
+        (flutter-l10n--import-file flutter-l10n-file))
+      (kill-new definition))))
 
 ;;;###autoload
 (defun flutter-l10n-externalize-all ()
@@ -242,19 +243,20 @@ of the l10n class indicated by `flutter-l10n-file'."
     (let (history)
       (while (re-search-forward "'[^']+?'\\|\"[^\"]\"" nil t)
         (unless (flutter-l10n--looking-at-import-p)
-          (when-let* ((value (flutter-l10n--normalize-string
-                              (match-string 0)))
-                      (id (flutter-l10n--read-id))
-                      (definition (flutter-l10n--gen-string-def id value))
-                      (reference (flutter-l10n--gen-string-ref id))
-                      (comment (flutter-l10n--gen-comment
-                                (flutter-l10n--strip-quotes value))))
-            (replace-match reference t t)
-            (flutter-l10n--delete-dominating-consts)
-            (flutter-l10n--append-to-current-line comment)
-            (unless (member id history)
-              (flutter-l10n--append-to-l10n-file definition))
-            (push id history))))
+          (let* ((value (flutter-l10n--normalize-string
+                         (match-string 0)))
+                 (id (flutter-l10n--read-id))
+                 (definition (flutter-l10n--gen-string-def id value))
+                 (reference (flutter-l10n--gen-string-ref id))
+                 (comment (flutter-l10n--gen-comment
+                           (flutter-l10n--strip-quotes value))))
+            (when id ; null id means user chose to skip
+              (replace-match reference t t)
+              (flutter-l10n--delete-dominating-consts)
+              (flutter-l10n--append-to-current-line comment)
+              (unless (member id history)
+                (flutter-l10n--append-to-l10n-file definition))
+              (push id history)))))
       (if history
           (unless (flutter-l10n--file-imported-p flutter-l10n-file)
             (flutter-l10n--import-file flutter-l10n-file))))))

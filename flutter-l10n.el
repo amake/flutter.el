@@ -141,9 +141,9 @@ only for making `bounds-of-thing-at-point' work."
   "Return non-nil if the current file has an import statement for
 FILE."
   (let ((statement (flutter-l10n--gen-import file)))
-   (save-excursion
-     (goto-char 1)
-     (search-forward statement nil t))))
+    (save-excursion
+      (goto-char 1)
+      (search-forward statement nil t))))
 
 (defun flutter-l10n--import-file (file)
   "Add an import statement for FILE to the current file."
@@ -188,15 +188,15 @@ leaf to root)."
         (structure (flutter-l10n--nesting-at-point)))
     (save-excursion
       (while structure
-       (let* ((delim (pop structure))
-              (token (car delim))
-              (position (cdr delim))
-              (bound (cdar structure)))
-         (goto-char (- position (length token)))
-         (when (and (re-search-backward "\\b[a-z]+\\b" bound t)
-                    (string= "const" (match-string 0)))
-           ;; TODO: Fix false positive when const in comment
-           (push `(,(match-beginning 0) . ,(match-end 0)) results)))))
+        (let* ((delim (pop structure))
+               (token (car delim))
+               (position (cdr delim))
+               (bound (cdar structure)))
+          (goto-char (- position (length token)))
+          (when (and (re-search-backward "\\b[a-z]+\\b" bound t)
+                     (string= "const" (match-string 0)))
+            ;; TODO: Fix false positive when const in comment
+            (push `(,(match-beginning 0) . ,(match-end 0)) results)))))
     (nreverse results)))
 
 (defun flutter-l10n--delete-dominating-consts ()
@@ -236,7 +236,7 @@ ring for yanking into the l10n class."
   "Interactively externalize all string literals in the buffer.
 The corresponding string definitions will be appended to the end
 of the l10n class indicated by `flutter-l10n-file'."
- (interactive)
+  (interactive)
   (save-excursion
     (goto-char 1)
     (let (history)

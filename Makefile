@@ -24,3 +24,14 @@ test-26: EMACS := $(call EMACS_VER,26.2)
 test-25: EMACS := $(call EMACS_VER,25.3)
 
 test-24: EMACS := $(call EMACS_VER,24.5)
+
+# Hooks
+
+HOOKS := $(filter-out %~,$(wildcard hooks/*))
+GIT_DIR := $(shell git rev-parse --git-dir)
+
+.PHONY: hooks
+hooks: $(foreach _,$(HOOKS),$(GIT_DIR)/hooks/$(notdir $(_)))
+
+$(GIT_DIR)/hooks/%: hooks/%
+	ln -s $(PWD)/$(<) $(@)

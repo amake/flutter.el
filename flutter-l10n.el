@@ -249,7 +249,7 @@ of the l10n class indicated by `flutter-l10n-file'."
                       (reference (flutter-l10n--gen-string-ref id))
                       (comment (flutter-l10n--gen-comment
                                 (flutter-l10n--strip-quotes value))))
-            (replace-match reference)
+            (replace-match reference t t)
             (flutter-l10n--delete-dominating-consts)
             (flutter-l10n--append-to-current-line comment)
             (unless (member id history)

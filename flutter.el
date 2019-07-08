@@ -83,6 +83,9 @@ created that sends the key to the `flutter` process."
   (dolist (item key-alist)
     (flutter-register-key (car item) (cdr item))))
 
+(defun flutter-hot-reload ()
+  "Dummy to suppress compiler warning.")
+
 (flutter-register-keys flutter-interactive-keys-alist)
 
 

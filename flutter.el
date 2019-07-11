@@ -52,8 +52,11 @@
     ("i" . inspector)
     ("p" . construction-lines)
     ("o" . operating-systems)
+    ("z" . elevation-checker)
     ("P" . performance-overlay)
+    ("a" . timeline-events)
     ("s" . screenshot)
+    ("d" . detatch)
     ("q" . quit)))
 
 (defvar flutter-mode-map

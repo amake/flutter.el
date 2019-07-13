@@ -182,8 +182,8 @@ well-formed."
 (defun flutter-l10n--find-applied-consts ()
   "Find the `const` keywords that apply to point.
 
-Result is a list of (BEGINING . END) in decreasing order (from
-leaf to root)."
+Result is a list of (BEGINNING . END) char positions in
+decreasing order (from leaf to root)."
   (let (results
         (structure (flutter-l10n--nesting-at-point)))
     (save-excursion

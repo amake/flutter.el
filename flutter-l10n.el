@@ -199,7 +199,7 @@ leaf to root)."
             (push `(,(match-beginning 0) . ,(match-end 0)) results)))))
     (nreverse results)))
 
-(defun flutter-l10n--delete-dominating-consts ()
+(defun flutter-l10n--delete-applied-consts ()
   "Delete the `const` keywords that apply to point."
   (dolist (pos (flutter-l10n--find-applied-consts))
     (delete-region (car pos) (cdr pos))))
@@ -226,7 +226,7 @@ ring for yanking into the l10n class."
     (when id ; null id means user chose to skip
       (delete-region beg end)
       (insert reference)
-      (flutter-l10n--delete-dominating-consts)
+      (flutter-l10n--delete-applied-consts)
       (flutter-l10n--append-to-current-line comment)
       (unless (flutter-l10n--file-imported-p flutter-l10n-file)
         (flutter-l10n--import-file flutter-l10n-file))
@@ -252,7 +252,7 @@ of the l10n class indicated by `flutter-l10n-file'."
                            (flutter-l10n--strip-quotes value))))
             (when id ; null id means user chose to skip
               (replace-match reference t t)
-              (flutter-l10n--delete-dominating-consts)
+              (flutter-l10n--delete-applied-consts)
               (flutter-l10n--append-to-current-line comment)
               (unless (member id history)
                 (flutter-l10n--append-to-l10n-file definition))

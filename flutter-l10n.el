@@ -60,7 +60,7 @@ the string definitions class.")
   (format flutter-l10n--ref-templ flutter-l10n-classname id))
 
 (defconst flutter-l10n--def-templ-interp
-  "String %s() {\n  Intl.message(%s, name: '%1$s', args: []);\n}")
+  "String %s() => Intl.message(%s, name: '%1$s', args: []);")
 
 (defconst flutter-l10n--def-templ-nointerp
   "String get %s => Intl.message(%s, name: '%1$s');")

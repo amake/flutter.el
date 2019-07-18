@@ -251,7 +251,12 @@ of the l10n class indicated by `flutter-l10n-file'."
                  (comment (flutter-l10n--gen-comment
                            (flutter-l10n--strip-quotes value))))
             (when id ; null id means user chose to skip
-              (replace-match reference t t)
+              ;; `replace-match' sometimes fails with
+              ;; "Match data clobbered by buffer modification hooks"
+              ;; so delete and insert instead. Previously:
+              ;;(replace-match reference t t)
+              (delete-region (match-beginning 0) (match-end 0))
+              (insert reference)
               (flutter-l10n--delete-applied-consts)
               (flutter-l10n--append-to-current-line comment)
               (unless (member id history)

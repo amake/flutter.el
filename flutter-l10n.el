@@ -239,11 +239,13 @@ The corresponding string definitions will be appended to the end
 of the l10n class indicated by `flutter-l10n-file'."
   (interactive)
   (let (history)
-    (while (re-search-forward "'[^']+?'\\|\"[^\"]+?\"" nil t)
+    (while (re-search-forward "'[^']*?'\\|\"[^\"]*?\"" nil t)
       ;; Store match bounds now so they don't get clobbered
-      (let ((beg (match-beginning 0))
-            (end (match-end 0)))
-        (unless (flutter-l10n--looking-at-import-p)
+      (let* ((beg (match-beginning 0))
+             (end (match-end 0))
+             (emptyp (<= (- end beg) 2))) ; Empty match ('' or "")
+        (unless (or emptyp
+                    (flutter-l10n--looking-at-import-p))
           (let* ((value (flutter-l10n--normalize-string
                          (match-string 0)))
                  (id (flutter-l10n--read-id))

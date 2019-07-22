@@ -162,9 +162,16 @@ FILE."
         (push (match-string-no-properties 1) result)))
     result))
 
-(defun flutter-l10n--read-id ()
-  "Prompt user for a string ID."
-  (let ((response (read-string "String ID [skip]: ")))
+(defun flutter-l10n--read-id (existing)
+  "Prompt user for a string ID, optionally choosing from EXISTING."
+  (let ((response (completing-read "String ID [skip]: "
+                                   existing
+                                   nil ; predicate
+                                   nil ; require-match
+                                   nil ; initial-input
+                                   nil ; hist
+                                   "" ; def
+                                   )))
     (if (string-empty-p response)
         nil
       response)))
@@ -228,7 +235,8 @@ ring for yanking into the l10n class."
          (end (cdr bounds))
          (value (flutter-l10n--normalize-string
                  (buffer-substring beg end)))
-         (id (flutter-l10n--read-id))
+         (existing (flutter-l10n--get-existing-ids))
+         (id (flutter-l10n--read-id existing))
          (definition (flutter-l10n--gen-string-def id value))
          (reference (flutter-l10n--gen-string-ref id))
          (comment (flutter-l10n--gen-comment
@@ -240,7 +248,8 @@ ring for yanking into the l10n class."
       (flutter-l10n--append-to-current-line comment)
       (unless (flutter-l10n--file-imported-p flutter-l10n-file)
         (flutter-l10n--import-file flutter-l10n-file))
-      (kill-new definition))))
+      (unless (member id existing)
+        (kill-new definition)))))
 
 ;;;###autoload
 (defun flutter-l10n-externalize-all ()
@@ -248,7 +257,8 @@ ring for yanking into the l10n class."
 The corresponding string definitions will be appended to the end
 of the l10n class indicated by `flutter-l10n-file'."
   (interactive)
-  (let (history)
+  (let (history
+        (existing (flutter-l10n--get-existing-ids)))
     (while (re-search-forward "'[^']*?'\\|\"[^\"]*?\"" nil t)
       ;; Store match bounds now so they don't get clobbered
       (let* ((beg (match-beginning 0))
@@ -258,7 +268,7 @@ of the l10n class indicated by `flutter-l10n-file'."
                     (flutter-l10n--looking-at-import-p))
           (let* ((value (flutter-l10n--normalize-string
                          (match-string 0)))
-                 (id (flutter-l10n--read-id))
+                 (id (flutter-l10n--read-id existing))
                  (definition (flutter-l10n--gen-string-def id value))
                  (reference (flutter-l10n--gen-string-ref id))
                  (comment (flutter-l10n--gen-comment
@@ -272,7 +282,8 @@ of the l10n class indicated by `flutter-l10n-file'."
               (insert reference)
               (flutter-l10n--delete-applied-consts)
               (flutter-l10n--append-to-current-line comment)
-              (unless (member id history)
+              (unless (or (member id history)
+                          (member id existing))
                 (flutter-l10n--append-to-l10n-file definition))
               (push id history))))))
     (if history

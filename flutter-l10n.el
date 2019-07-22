@@ -152,6 +152,16 @@ FILE."
       (goto-char 1)
       (insert statement "\n"))))
 
+(defun flutter-l10n--get-existing-ids ()
+  "List existing IDs found in `flutter-l10n-file'."
+  (let (result
+        (target (find-file-noselect (flutter-l10n--get-l10n-file))))
+    (with-current-buffer target
+      (goto-char 1)
+      (while (re-search-forward "^[ \t]*String \\(?:get \\)?\\([a-zA-Z0-9_]+\\)" nil t)
+        (push (match-string-no-properties 1) result)))
+    result))
+
 (defun flutter-l10n--read-id ()
   "Prompt user for a string ID."
   (let ((response (read-string "String ID [skip]: ")))

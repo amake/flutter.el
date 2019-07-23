@@ -251,36 +251,37 @@ of the l10n class indicated by `flutter-l10n-file'."
   (interactive)
   (let (history
         (existing (flutter-l10n--get-existing-ids)))
-    (while (re-search-forward "'[^']*?'\\|\"[^\"]*?\"" nil t)
-      ;; Store match bounds now so they don't get clobbered
-      (let* ((beg (match-beginning 0))
-             (end (match-end 0))
-             (emptyp (<= (- end beg) 2))) ; Empty match ('' or "")
-        (unless (or emptyp
-                    (flutter-l10n--looking-at-import-p))
-          (let* ((value (flutter-l10n--normalize-string
-                         (match-string 0)))
-                 (id (flutter-l10n--read-id existing))
-                 (definition (flutter-l10n--gen-string-def id value))
-                 (reference (flutter-l10n--gen-string-ref id))
-                 (comment (flutter-l10n--gen-comment
-                           (flutter-l10n--strip-quotes value))))
-            (when id ; null id means user chose to skip
-              ;; `replace-match' sometimes fails with
-              ;; "Match data clobbered by buffer modification hooks"
-              ;; so delete and insert instead. Previously:
-              ;;(replace-match reference t t)
-              (delete-region beg end)
-              (insert reference)
-              (flutter-l10n--delete-applied-consts)
-              (flutter-l10n--append-to-current-line comment)
-              (unless (or (member id history)
-                          (member id existing))
-                (flutter-l10n--append-to-l10n-file definition))
-              (push id history)
-              (push id existing))))))
-    (if history
-        (flutter-l10n--import-file flutter-l10n-file))))
+    (unwind-protect
+        (while (re-search-forward "'[^']*?'\\|\"[^\"]*?\"" nil t)
+          ;; Store match bounds now so they don't get clobbered
+          (let* ((beg (match-beginning 0))
+                 (end (match-end 0))
+                 (emptyp (<= (- end beg) 2))) ; Empty match ('' or "")
+            (unless (or emptyp
+                        (flutter-l10n--looking-at-import-p))
+              (let* ((value (flutter-l10n--normalize-string
+                             (match-string 0)))
+                     (id (flutter-l10n--read-id existing))
+                     (definition (flutter-l10n--gen-string-def id value))
+                     (reference (flutter-l10n--gen-string-ref id))
+                     (comment (flutter-l10n--gen-comment
+                               (flutter-l10n--strip-quotes value))))
+                (when id ; null id means user chose to skip
+                  ;; `replace-match' sometimes fails with
+                  ;; "Match data clobbered by buffer modification hooks"
+                  ;; so delete and insert instead. Previously:
+                  ;;(replace-match reference t t)
+                  (delete-region beg end)
+                  (insert reference)
+                  (flutter-l10n--delete-applied-consts)
+                  (flutter-l10n--append-to-current-line comment)
+                  (unless (or (member id history)
+                              (member id existing))
+                    (flutter-l10n--append-to-l10n-file definition))
+                  (push id history)
+                  (push id existing))))))
+      (if history
+          (flutter-l10n--import-file flutter-l10n-file)))))
 
 (provide 'flutter-l10n)
 ;;; flutter-l10n.el ends here

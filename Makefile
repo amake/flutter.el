@@ -10,10 +10,10 @@ COMPILE_CMD = $(EMACS) -Q -L . \
 EL_FILES := $(wildcard *.el)
 
 .PHONY: test
-test: test-default
+test: test-default ## Run regular test (default Emacs)
 
 .PHONY: test-ci
-test-ci: test-26 test-25 test-24
+test-ci: test-26 test-25 test-24 ## Run tests for CI (various containerized Emacsen)
 
 .PHONY: test-default test-26 test-25 test-24
 test-default test-26 test-25 test-24: $(EL_FILES)
@@ -30,8 +30,16 @@ test-24: EMACS := $(call EMACS_VER,24.5)
 HOOKS := $(filter-out %~,$(wildcard hooks/*))
 GIT_DIR := $(shell git rev-parse --git-dir)
 
-.PHONY: hooks
+.PHONY: hooks  ## Install helpful git hooks
 hooks: $(foreach _,$(HOOKS),$(GIT_DIR)/hooks/$(notdir $(_)))
 
 $(GIT_DIR)/hooks/%: hooks/%
 	ln -s $(PWD)/$(<) $(@)
+
+.PHONY: help
+help: ## Show this help text
+	$(info usage: make [target])
+	$(info )
+	$(info Available targets:)
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
+		awk 'BEGIN {FS = ":.*?## "}; {printf "  %-24s %s\n", $$1, $$2}'

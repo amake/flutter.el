@@ -285,7 +285,8 @@ of the l10n class indicated by `flutter-l10n-file'."
               (unless (or (member id history)
                           (member id existing))
                 (flutter-l10n--append-to-l10n-file definition))
-              (push id history))))))
+              (push id history)
+              (push id existing))))))
     (if history
         (unless (flutter-l10n--file-imported-p flutter-l10n-file)
           (flutter-l10n--import-file flutter-l10n-file)))))

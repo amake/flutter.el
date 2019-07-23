@@ -146,13 +146,14 @@ only for making `bounds-of-thing-at-point' work."
         (insert statement "\n")))))
 
 (defun flutter-l10n--get-existing-ids ()
-  "List existing IDs found in `flutter-l10n-file'."
-  (let (result
+  "Return a hash table of existing IDs found in
+`flutter-l10n-file'.  Values are t."
+  (let ((result (make-hash-table :test #'equal))
         (target (find-file-noselect (flutter-l10n--get-l10n-file))))
     (with-current-buffer target
       (goto-char 1)
       (while (re-search-forward "^[ \t]*String \\(?:get \\)?\\([a-zA-Z0-9_]+\\)" nil t)
-        (push (match-string-no-properties 1) result)))
+        (puthash (match-string-no-properties 1) t result)))
     result))
 
 (defun flutter-l10n--read-id (existing)
@@ -276,10 +277,10 @@ of the l10n class indicated by `flutter-l10n-file'."
                   (flutter-l10n--delete-applied-consts)
                   (flutter-l10n--append-to-current-line comment)
                   (unless (or (member id history)
-                              (member id existing))
+                              (gethash id existing))
                     (flutter-l10n--append-to-l10n-file definition))
                   (push id history)
-                  (push id existing))))))
+                  (puthash id t existing))))))
       (if history
           (flutter-l10n--import-file flutter-l10n-file)))))
 

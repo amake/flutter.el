@@ -137,20 +137,13 @@ only for making `bounds-of-thing-at-point' work."
       (search-backward "}")
       (insert "\n  " definition "\n"))))
 
-(defun flutter-l10n--file-imported-p (file)
-  "Return non-nil if the current file has an import statement for
-FILE."
-  (let ((statement (flutter-l10n--gen-import file)))
-    (save-excursion
-      (goto-char 1)
-      (search-forward statement nil t))))
-
 (defun flutter-l10n--import-file (file)
   "Add an import statement for FILE to the current file."
   (let ((statement (flutter-l10n--gen-import file)))
     (save-excursion
       (goto-char 1)
-      (insert statement "\n"))))
+      (unless (search-forward statement nil t) ; already imported
+        (insert statement "\n")))))
 
 (defun flutter-l10n--get-existing-ids ()
   "List existing IDs found in `flutter-l10n-file'."
@@ -246,8 +239,7 @@ ring for yanking into the l10n class."
       (insert reference)
       (flutter-l10n--delete-applied-consts)
       (flutter-l10n--append-to-current-line comment)
-      (unless (flutter-l10n--file-imported-p flutter-l10n-file)
-        (flutter-l10n--import-file flutter-l10n-file))
+      (flutter-l10n--import-file flutter-l10n-file)
       (unless (member id existing)
         (kill-new definition)))))
 
@@ -288,8 +280,7 @@ of the l10n class indicated by `flutter-l10n-file'."
               (push id history)
               (push id existing))))))
     (if history
-        (unless (flutter-l10n--file-imported-p flutter-l10n-file)
-          (flutter-l10n--import-file flutter-l10n-file)))))
+        (flutter-l10n--import-file flutter-l10n-file))))
 
 (provide 'flutter-l10n)
 ;;; flutter-l10n.el ends here

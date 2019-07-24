@@ -30,7 +30,8 @@ test-24: EMACS := $(call EMACS_VER,24.5)
 HOOKS := $(filter-out %~,$(wildcard hooks/*))
 GIT_DIR := $(shell git rev-parse --git-dir)
 
-.PHONY: hooks  ## Install helpful git hooks
+.PHONY: hooks
+hooks: ## Install helpful git hooks
 hooks: $(foreach _,$(HOOKS),$(GIT_DIR)/hooks/$(notdir $(_)))
 
 $(GIT_DIR)/hooks/%: hooks/%

@@ -5,6 +5,7 @@ EMACS_VER = docker run --rm -t \
 	flycheck/emacs-cask:$1 \
 	emacs
 DEPENDENCIES := flycheck dash
+DEPENDENT_EL := flutter-l10n-flycheck.el
 FIND_PKG_DIR = $(shell find -L ~/.emacs.d/elpa -type d -regex '.*/$1-[0-9.]*')
 SEARCH_DIRS = $(foreach _,$(DEPENDENCIES),-L $(call FIND_PKG_DIR,$(_)))
 COMPILE_CMD = $(EMACS) -Q -L . $(SEARCH_DIRS) \
@@ -17,11 +18,12 @@ test: test-default ## Run regular test (default Emacs)
 
 .PHONY: test-ci
 test-ci: DEPENDENCIES :=
+test-ci: EL_FILES := $(filter-out $(DEPENDENT_EL),$(EL_FILES))
 test-ci: test-26 test-25 test-24 ## Run tests for CI (various containerized Emacsen)
 
 .PHONY: test-default test-26 test-25 test-24
-test-default test-26 test-25 test-24: $(filter-out %-flycheck.el,$(EL_FILES))
-	$(COMPILE_CMD) $(^)
+test-default test-26 test-25 test-24: $(EL_FILES)
+	$(COMPILE_CMD) $(EL_FILES)
 
 test-26: EMACS := $(call EMACS_VER,26.2)
 

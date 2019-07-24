@@ -4,7 +4,10 @@ EMACS_VER = docker run --rm -t \
 	-w /work \
 	flycheck/emacs-cask:$1 \
 	emacs
-COMPILE_CMD = $(EMACS) -Q -L . \
+DEPENDENCIES :=
+FIND_PKG_DIR = $(shell find -L ~/.emacs.d/elpa -type d -regex '.*/$1-[0-9.]*')
+SEARCH_DIRS = $(foreach _,$(DEPENDENCIES),-L $(call FIND_PKG_DIR,$(_)))
+COMPILE_CMD = $(EMACS) -Q -L . $(SEARCH_DIRS) \
 	--eval '(setq byte-compile-error-on-warn t)' \
 	-batch -f batch-byte-compile
 EL_FILES := $(wildcard *.el)

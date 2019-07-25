@@ -260,6 +260,8 @@ of the l10n class indicated by `flutter-l10n-file'."
                  (emptyp (<= (- end beg) 2))) ; Empty match ('' or "")
             (unless (or emptyp
                         (flutter-l10n--looking-at-import-p))
+              (push-mark beg)
+              (activate-mark)
               (let* ((value (flutter-l10n--normalize-string
                              (match-string 0)))
                      (id (flutter-l10n--read-id existing))
@@ -282,7 +284,8 @@ of the l10n class indicated by `flutter-l10n-file'."
                   (push id history)
                   (puthash id t existing))))))
       (if history
-          (flutter-l10n--import-file flutter-l10n-file)))))
+          (flutter-l10n--import-file flutter-l10n-file))
+      (deactivate-mark))))
 
 (provide 'flutter-l10n)
 ;;; flutter-l10n.el ends here

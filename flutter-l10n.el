@@ -90,6 +90,12 @@ the string definitions class.")
           (flutter-project-get-name)
           (string-remove-prefix "lib/" file)))
 
+(defconst flutter-l10n--class-decl-pattern-templ "class %s[^{]*?{")
+
+(defun flutter-l10n--gen-class-decl-pattern (classname)
+  "Generate a regexp to match a class declaration with CLASSNAME."
+  (format flutter-l10n--class-decl-pattern-templ classname))
+
 
 ;;; Internal utilities
 
@@ -129,12 +135,20 @@ only for making `bounds-of-thing-at-point' work."
     (end-of-line)
     (insert " " contents)))
 
+(defun flutter-l10n--jump-to-end-of-class (classname)
+  "Jump to the end of the CLASSNAME body."
+  (let ((pattern (flutter-l10n--gen-class-decl-pattern classname)))
+    (re-search-forward pattern)
+    (backward-char)
+    (forward-sexp)))
+
 (defun flutter-l10n--append-to-l10n-file (definition)
   "Append DEFINITION to the end of the l10n class in the l10n file."
   (let ((target (find-file-noselect (flutter-l10n--get-l10n-file))))
     (with-current-buffer target
-      (goto-char (point-max))
-      (search-backward "}")
+      (goto-char 1)
+      (flutter-l10n--jump-to-end-of-class flutter-l10n-classname)
+      (backward-char)
       (insert "\n  " definition "\n"))))
 
 (defun flutter-l10n--import-file (file)
@@ -152,8 +166,14 @@ only for making `bounds-of-thing-at-point' work."
         (target (find-file-noselect (flutter-l10n--get-l10n-file))))
     (with-current-buffer target
       (goto-char 1)
-      (while (re-search-forward "^[ \t]*String \\(?:get \\)?\\([a-zA-Z0-9_]+\\)" nil t)
-        (puthash (match-string-no-properties 1) t result)))
+      (let ((class-pattern (flutter-l10n--gen-class-decl-pattern
+                            flutter-l10n-classname))
+            (end (save-excursion
+                   (flutter-l10n--jump-to-end-of-class flutter-l10n-classname)
+                   (point))))
+        (re-search-forward class-pattern)
+        (while (re-search-forward "^[ \t]*String \\(?:get \\)?\\([a-zA-Z0-9_]+\\)" end t)
+          (puthash (match-string-no-properties 1) t result))))
     result))
 
 (defun flutter-l10n--read-id (existing)

@@ -31,6 +31,10 @@ test-25: EMACS := $(call EMACS_VER,25.3)
 
 test-24: EMACS := $(call EMACS_VER,24.5)
 
+.PHONY: clean
+clean: ## Clean files
+	rm *.elc
+
 # Hooks
 
 HOOKS := $(filter-out %~,$(wildcard hooks/*))

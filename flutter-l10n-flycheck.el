@@ -1,4 +1,4 @@
-;;; flutter-l10n-flycheck.el --- Tools for Flutter L10N -*- lexical-binding: t -*-
+;;; flutter-l10n-flycheck.el --- intl_translation checks via Flycheck -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2019 Aaron Madlon-Kay
 

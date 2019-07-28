@@ -42,12 +42,26 @@ practices](https://flutter.dev/docs/development/accessibility-and-localization/i
   literal at point only; kills the definition instead of adding it to the
   localizations class.
 
+## Lint your localization strings
+
+A [Flycheck](https://www.flycheck.org/) checker calling
+`intl_translation:extract_to_arb` from the
+[`intl_translation`](https://pub.dev/packages/intl_translation) package is
+available for making sure your strings are defined in the correct way. This is
+published as a separate, optional package: flutter-l10n-flycheck.
+
 # Installation
 
 You can install from [MELPA](https://melpa.org/#/flutter) with `package.el`:
 
 ```
 M-x package-install flutter
+```
+
+and, optionally
+
+```
+M-x package-install flutter-l10n-flycheck
 ```
 
 # Configuration
@@ -62,6 +76,10 @@ your project:
   are defined
 - `flutter-l10n-file`: The relative path from project root to the file that
   defines the localizations class. Should include the leading `lib/`.
+
+If using flutter-l10n-flycheck be sure to call `flutter-l10n-flycheck-setup` and
+set your L10N file (the one specified in `flutter-l10n-file`) to use the
+checker: `M-x add-file-local-variable-prop-line flycheck-checker intl_translation`
 
 ## Example
 
@@ -86,6 +104,12 @@ put the Flutter SDK in `/Applications/flutter`:
               ("C-M-x" . #'flutter-run-or-hot-reload))
   :custom
   (flutter-sdk-path "/Applications/flutter/"))
+
+;; Optional
+(use-package flutter-l10n-flycheck
+  :after flutter
+  :config
+  (flutter-l10n-flycheck-setup))
 ```
 
 A sample `.dir-locals.el` to go in your project root:
@@ -94,6 +118,12 @@ A sample `.dir-locals.el` to go in your project root:
 ((dart-mode
   (flutter-l10n-classname . "AppLocalizations")
   (flutter-l10n-file . "lib/app_l10n.dart")))
+```
+
+The propline for your L10N file:
+
+```dart
+// -*- flycheck-checker: intl_translation; -*-
 ```
 
 # License

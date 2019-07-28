@@ -87,12 +87,8 @@ Using [`use-package`](https://jwiegley.github.io/use-package/) and assuming you
 put the Flutter SDK in `/Applications/flutter`:
 
 ```elisp
-(use-package lsp-mode
-  :commands lsp)
-
+;; Assuming usage with dart-mode
 (use-package dart-mode
-  :hook (dart-mode . lsp)
-  :after lsp
   :ensure-system-package (dart_language_server . "pub global activate dart_language_server")
   :custom
   (dart-format-on-save t)

@@ -14,12 +14,14 @@ COMPILE_CMD = $(EMACS) -Q -L . $(SEARCH_DIRS) \
 EL_FILES := $(wildcard *.el)
 
 .PHONY: test
-test: test-default ## Run regular test (default Emacs)
+test: ## Run regular test (default Emacs)
+test: test-default
 
 .PHONY: test-ci
+test-ci: ## Run tests for CI (various containerized Emacsen)
 test-ci: DEPENDENCIES :=
 test-ci: EL_FILES := $(filter-out $(DEPENDENT_EL),$(EL_FILES))
-test-ci: test-26 test-25 test-24 ## Run tests for CI (various containerized Emacsen)
+test-ci: test-26 test-25 test-24
 
 .PHONY: test-default test-26 test-25 test-24
 test-default test-26 test-25 test-24: $(EL_FILES)

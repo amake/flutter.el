@@ -31,7 +31,8 @@
 
 (defun flutter-project-get-root ()
   "Find the root of the current project."
-  (locate-dominating-file default-directory "pubspec.yaml"))
+  (or (locate-dominating-file default-directory "pubspec.yaml")
+      (error "This does not appear to be a Flutter project (pubspec.yaml not found)")))
 
 (defun flutter-project-get-name ()
   "Return the name of the current project."

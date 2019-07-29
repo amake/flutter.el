@@ -99,7 +99,7 @@ the string definitions class.")
 
 ;;; Internal utilities
 
-(defun forward-dart-string (&optional arg)
+(defun flutter-l10n--forward-dart-string (&optional arg)
   "Move to the end or beginning of the string at point.
 Go forward for positive ARG, or backward for negative ARG.
 Assumes start in middle of string.  Not meant for general use;
@@ -108,6 +108,8 @@ only for making `bounds-of-thing-at-point' work."
   (if (natnump arg)
       (re-search-forward "[^\"']+[\"']" nil 'move)
     (re-search-backward "[\"'][^\"']" nil 'move)))
+
+(put 'dart-string 'forward-op #'flutter-l10n--forward-dart-string)
 
 (defun flutter-l10n--normalize-string (string)
   "Normalize a Dart STRING."

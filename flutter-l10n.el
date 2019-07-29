@@ -73,7 +73,7 @@ the string definitions class.")
     (format template id value)))
 
 (defun flutter-l10n--has-interp (string)
-  "Return non-nil if STRING uses interpolation."
+  "Return non-nil if STRING has interpolation."
   (string-match-p "\\$" string))
 
 (defconst flutter-l10n--comment-templ "// %s")
@@ -160,8 +160,9 @@ only for making `bounds-of-thing-at-point' work."
         (insert statement "\n")))))
 
 (defun flutter-l10n--get-existing-ids ()
-  "Return a hash table of existing IDs found in
-`flutter-l10n-file'.  Values are t."
+  "Return a hash table of existing string IDs.
+Searches `flutter-l10n-class' in `flutter-l10n-file'.  Values are
+t."
   (let ((result (make-hash-table :test #'equal))
         (target (find-file-noselect (flutter-l10n--get-l10n-file))))
     (with-current-buffer target

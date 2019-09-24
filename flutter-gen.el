@@ -37,10 +37,10 @@
   "const %s({%s}) : super([%s]);")
 
 (defconst flutter-gen--copy-with-templ
-  "%s copyWith({%s}) => %1$s(%3$s);")
+  "%s copyWith({%s}) => %s(%s);")
 
 (defconst flutter-gen--merge-templ
-  "%s merge(%1$s other) => copyWith(%s);")
+  "%s merge(%s other) => copyWith(%s);")
 
 (cl-defgeneric flutter-gen--to-string (obj)
   (:documentation "Generic to-string function"))
@@ -75,18 +75,20 @@
                             properties
                             ", "))
         (args-out (mapconcat (lambda (item)
-                               (format "%s: %1$s ?? this.%1$s" (car item)))
+                               (let ((name (car item)))
+                                 (format "%s: %s ?? this.%s" name name name)))
                              properties
                              ", ")))
-    (format flutter-gen--copy-with-templ name args-in args-out)))
+    (format flutter-gen--copy-with-templ name args-in name args-out)))
 
 (defun flutter-gen--merge (name properties)
   "Generate a merge implementation for class NAME with PROPERTIES."
   (let ((args-out (mapconcat (lambda (item)
-                               (format "%s: other.%1$s" (car item)))
+                               (let ((name (car item)))
+                                (format "%s: other.%s" name name)))
                              properties
                              ", ")))
-    (format flutter-gen--merge-templ name args-out)))
+    (format flutter-gen--merge-templ name name args-out)))
 
 
 ;;; Public interface

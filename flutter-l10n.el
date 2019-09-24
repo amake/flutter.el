@@ -60,17 +60,17 @@ the string definitions class.")
   (format flutter-l10n--ref-templ flutter-l10n-classname id))
 
 (defconst flutter-l10n--def-templ-interp
-  "String %s() => Intl.message(%s, name: '%1$s', args: []);")
+  "String %s() => Intl.message(%s, name: '%s', args: []);")
 
 (defconst flutter-l10n--def-templ-nointerp
-  "String get %s => Intl.message(%s, name: '%1$s');")
+  "String get %s => Intl.message(%s, name: '%s');")
 
 (defun flutter-l10n--gen-string-def (id value)
   "Generate a l10n string definition with ID and VALUE."
   (let ((template (if (flutter-l10n--has-interp value)
                       flutter-l10n--def-templ-interp
                     flutter-l10n--def-templ-nointerp)))
-    (format template id value)))
+    (format template id value id)))
 
 (defun flutter-l10n--has-interp (string)
   "Return non-nil if STRING has interpolation."

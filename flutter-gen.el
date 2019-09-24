@@ -42,14 +42,11 @@
 (defconst flutter-gen--merge-templ
   "%s merge(%s other) => copyWith(%s);")
 
-(cl-defgeneric flutter-gen--to-string (obj)
-  (:documentation "Generic to-string function"))
-
-(cl-defmethod flutter-gen--to-string ((sym symbol))
-  (symbol-name sym))
-
-(cl-defmethod flutter-gen--to-string ((str string))
-  str)
+(defun flutter-gen--to-string (obj)
+  "Generic to-string function for any OBJ."
+  (cond ((stringp obj) obj)
+        ((symbolp obj) (symbol-name obj))
+        (t (format "%s" obj))))
 
 (defun flutter-gen--property-declarations (properties)
   "Generate property declarations from PROPERTIES."

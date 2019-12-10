@@ -264,7 +264,7 @@ ring for yanking into the l10n class."
       (flutter-l10n--delete-applied-consts)
       (flutter-l10n--append-to-current-line comment)
       (flutter-l10n--import-file flutter-l10n-file)
-      (unless (member id existing)
+      (unless (gethash id existing)
         (kill-new definition)))))
 
 ;;;###autoload

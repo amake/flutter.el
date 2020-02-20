@@ -202,9 +202,16 @@ args."
 
 ;;;###autoload
 (defun flutter-test-all ()
-  "Execute `flutter test` inside Emacs on project root."
+  "Execute `flutter test` inside Emacs."
   (interactive)
   (flutter--test))
+
+;;;###autoload
+(defun flutter-test-current-file ()
+  "Execute `flutter test <current-file>` inside Emacs."
+  (interactive)
+  (let ((test-file (file-relative-name buffer-file-name (flutter-project-get-root))))
+    (flutter--test test-file)))
 
 ;;;###autoload
 (define-derived-mode flutter-mode comint-mode "Flutter"

@@ -5,7 +5,7 @@
 ;; Author: Aaron Madlon-Kay
 ;; Version: 0.1.0
 ;; URL: https://github.com/amake/flutter.el
-;; Package-Requires: ((emacs "24.5"))
+;; Package-Requires: ((emacs "24.4"))
 ;; Keywords: languages
 
 ;; This file is not part of GNU Emacs.
@@ -207,9 +207,9 @@ well-formed."
         (let ((char (match-string 0)))
           (cond ((string= "//" char)
                  (end-of-line))
-                ((cl-search char "([{")
+                ((string-match (regexp-quote char) "([{")
                  (push `(,char . ,(match-beginning 0)) structure))
-                ((cl-search char ")]}")
+                ((string-match (regexp-quote char) ")]}")
                  (pop structure))))))
     structure))
 

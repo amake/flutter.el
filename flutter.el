@@ -33,7 +33,6 @@
 (require 'flutter-l10n)
 
 (defconst flutter-buffer-name "*Flutter*")
-(defconst flutter-test-buffer-name "*Flutter Test*")
 
 (defvar flutter-sdk-path nil
   "Path to Flutter SDK.")
@@ -106,7 +105,6 @@ the `flutter` process."
 (defmacro flutter--with-run-proc (args &rest body)
   "Execute BODY while ensuring an inferior `flutter run` process is running.
 
-BUFFER-NAME is the chosen buffer where will run the proc.
 ARGS is a space-delimited string of CLI flags passed to
 `flutter`, and can be nil."
   `(flutter--from-project-root
@@ -120,30 +118,9 @@ ARGS is a space-delimited string of CLI flags passed to
           (flutter-mode)))
       ,@body)))
 
-(defmacro flutter--with-test-proc (args &rest body)
-  "Execute BODY while ensuring an inferior `flutter test` process is running.
-
-BUFFER-NAME is the chosen buffer where will run the proc.
-ARGS is a space-delimited string of CLI flags passed to
-`flutter`, and can be nil."
-  `(flutter--from-project-root
-    (let* ((buffer (get-buffer-create flutter-test-buffer-name))
-           (alive (flutter--testing-p))
-           (arglist (when ,args (split-string ,args))))
-      (unless alive
-        (apply #'make-comint-in-buffer "Flutter Test" buffer (flutter-build-command) nil "test" arglist))
-      (with-current-buffer buffer
-        (unless (derived-mode-p 'flutter-mode)
-          (flutter-mode)))
-      ,@body)))
-
 (defun flutter--running-p ()
   "Return non-nil if the `flutter run` process is already running."
   (comint-check-proc flutter-buffer-name))
-
-(defun flutter--testing-p ()
-  "Return non-nil if the `flutter test` process is already running."
-  (comint-check-proc flutter-test-buffer-name))
 
 (defun flutter--send-command (command)
   "Send COMMAND to a running Flutter process."
@@ -162,9 +139,8 @@ args."
   (interactive
    (list (when current-prefix-arg
            (read-string "Args: "))))
-  (flutter--with-test-proc
-   args
-   (pop-to-buffer-same-window buffer)))
+  (flutter--from-project-root
+   (compilation-start (format "%s test %s" (flutter-build-command) args) t)))
 
 (defun flutter--initialize ()
   "Helper function to initialize Flutter."

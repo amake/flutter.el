@@ -103,7 +103,7 @@ the `flutter` process."
        (error "Root of Flutter project not found"))))
 
 (defmacro flutter--with-run-proc (args &rest body)
-  "Execute BODY while ensuring an inferior `flutter run` process is running.
+  "Execute BODY while ensuring an inferior `flutter` process is running.
 
 ARGS is a space-delimited string of CLI flags passed to
 `flutter`, and can be nil."
@@ -119,13 +119,12 @@ ARGS is a space-delimited string of CLI flags passed to
       ,@body)))
 
 (defun flutter--running-p ()
-  "Return non-nil if the `flutter run` process is already running."
+  "Return non-nil if the `flutter` process is already running."
   (comint-check-proc flutter-buffer-name))
 
 (defun flutter--send-command (command)
   "Send COMMAND to a running Flutter process."
   (flutter--with-run-proc
-   flutter-buffer-name
    nil
    (let ((proc (get-buffer-process flutter-buffer-name)))
      (comint-send-string proc command))))
@@ -134,13 +133,9 @@ ARGS is a space-delimited string of CLI flags passed to
   "Execute `flutter test` inside Emacs.
 
 ARGS is a space-delimited string of CLI flags passed to
-`flutter`, and can be nil.  Call with a prefix to be prompted for
-args."
-  (interactive
-   (list (when current-prefix-arg
-           (read-string "Args: "))))
+`flutter`, and can be nil."
   (flutter--from-project-root
-   (compilation-start (format "%s test %s" (flutter-build-command) args) t)))
+   (compilation-start (format "%s test %s" (flutter-build-command) (or args "")) t)))
 
 (defun flutter--initialize ()
   "Helper function to initialize Flutter."

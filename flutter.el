@@ -129,6 +129,14 @@ ARGS is a space-delimited string of CLI flags passed to
    (let ((proc (get-buffer-process flutter-buffer-name)))
      (comint-send-string proc command))))
 
+(defun flutter--test (&optional args)
+  "Execute `flutter test` inside Emacs.
+
+ARGS is a space-delimited string of CLI flags passed to
+`flutter`, and can be nil."
+  (flutter--from-project-root
+   (compilation-start (format "%s test %s" (flutter-build-command) (or args "")) t)))
+
 (defun flutter--initialize ()
   "Helper function to initialize Flutter."
   (setq comint-process-echoes nil))
@@ -162,6 +170,19 @@ args."
   (if (flutter--running-p)
       (flutter-hot-reload)
     (flutter-run)))
+
+;;;###autoload
+(defun flutter-test-all ()
+  "Execute `flutter test` inside Emacs."
+  (interactive)
+  (flutter--test))
+
+;;;###autoload
+(defun flutter-test-current-file ()
+  "Execute `flutter test <current-file>` inside Emacs."
+  (interactive)
+  (let ((test-file (file-relative-name buffer-file-name (flutter-project-get-root))))
+    (flutter--test test-file)))
 
 ;;;###autoload
 (define-derived-mode flutter-mode comint-mode "Flutter"

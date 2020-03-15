@@ -50,6 +50,15 @@ A [Flycheck](https://www.flycheck.org/) checker calling
 available for making sure your strings are defined in the correct way. This is
 published as a separate, optional package: flutter-l10n-flycheck.
 
+## Run tests
+
+Flutter.el helps you run tests of your flutter application. There are 3 commands
+available:
+
+- `flutter-test-all` - run all tests from a flutter project.
+- `flutter-test-current-file` - run all tests inside the current file.
+- `flutter-test-at-point` - run single test or group of tests at point.
+
 # Installation
 
 You can install from [MELPA](https://melpa.org/#/flutter) with `package.el`:

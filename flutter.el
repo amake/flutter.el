@@ -129,13 +129,23 @@ ARGS is a space-delimited string of CLI flags passed to
    (let ((proc (get-buffer-process flutter-buffer-name)))
      (comint-send-string proc command))))
 
-(defun flutter--test (&optional args)
+(defun flutter--test (&rest args)
   "Execute `flutter test` inside Emacs.
 
-ARGS is a space-delimited string of CLI flags passed to
+ARGS is a list of CLI flags passed to
 `flutter`, and can be nil."
   (flutter--from-project-root
-   (compilation-start (format "%s test %s" (flutter-build-command) (or args "")) t)))
+   (compilation-start (format "%s test %s" (flutter-build-command) (mapconcat 'identity args " ")) t)))
+
+(defun flutter--find-test-case (line)
+  "Search backwards for test name starting at LINE on current buffer."
+  (save-excursion
+    (goto-char (point-min))
+    (forward-line (1- line))
+    (end-of-line)
+    (if (re-search-backward (concat "^[ \t]*\\(testWidgets\\|test\\|group\\)"
+                                    "(\\([\"'].*?[\"']\\),") nil t)
+        (match-string 2))))
 
 (defun flutter--initialize ()
   "Helper function to initialize Flutter."
@@ -183,6 +193,14 @@ args."
   (interactive)
   (let ((test-file (file-relative-name buffer-file-name (flutter-project-get-root))))
     (flutter--test test-file)))
+
+;;;###autoload
+(defun flutter-test-at-point ()
+  "Execute `flutter test --plain-name <test-name-at-point> <current-file>` inside Emacs."
+  (interactive)
+  (let ((test-file (file-relative-name buffer-file-name (flutter-project-get-root)))
+        (line (line-number-at-pos (point))))
+    (flutter--test "--plain-name" (flutter--find-test-case line) test-file)))
 
 ;;;###autoload
 (define-derived-mode flutter-mode comint-mode "Flutter"

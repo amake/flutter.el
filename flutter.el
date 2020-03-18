@@ -143,9 +143,9 @@ ARGS is a list of CLI flags passed to
     (goto-char (point-min))
     (forward-line (1- line))
     (end-of-line)
-    (if (re-search-backward (concat "^[ \t]*\\(testWidgets\\|test\\|group\\)"
+    (if (re-search-backward (concat "^[ \t]*\\(?:testWidgets\\|test\\|group\\)"
                                     "(\\([\"'].*?[\"']\\),") nil t)
-        (match-string 2))))
+        (match-string 1))))
 
 (defun flutter--initialize ()
   "Helper function to initialize Flutter."

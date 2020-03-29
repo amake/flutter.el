@@ -137,15 +137,32 @@ ARGS is a list of CLI flags passed to
   (flutter--from-project-root
    (compilation-start (format "%s test %s" (flutter-build-command) (mapconcat 'identity args " ")) t)))
 
+;; The second part of the regexp is a translation of this PCRE, which correctly
+;; handles escaped quotes:
+;;
+;; \((['\"])(.*?(?<!\\)(?:\\\\)*)\1,
+;;
+;; Emacs doesn't have negative lookbehind, so the above is reimplemented as:
+;;
+;; \((['\"])(.*[^\\](?:\\\\)*|(?:\\\\)*)\1,
+;;
+;; This was then translated to the below with the pcre2el package:
+;;
+;; (rxt-pcre-to-elisp (read-string "regexp: "))
+(defconst flutter--test-case-regexp
+  (concat "^[ \t]*\\(?:testWidgets\\|test\\|group\\)"
+          "(\\([\"']\\)\\(.*[^\\]\\(?:\\\\\\\\\\)*\\|\\(?:\\\\\\\\\\)*\\)\\1,")
+  "Regexp for finding the string title of a test or test group.
+The title will be in match 2.")
+
 (defun flutter--find-test-case (line)
   "Search backwards for test name starting at LINE on current buffer."
   (save-excursion
     (goto-char (point-min))
     (forward-line (1- line))
     (end-of-line)
-    (if (re-search-backward (concat "^[ \t]*\\(?:testWidgets\\|test\\|group\\)"
-                                    "(\\([\"'].*?[\"']\\),") nil t)
-        (match-string 1))))
+    (if (re-search-backward flutter--test-case-regexp nil t)
+        (match-string 2))))
 
 (defun flutter--initialize ()
   "Helper function to initialize Flutter."

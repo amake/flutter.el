@@ -217,7 +217,10 @@ args."
   (interactive)
   (let ((test-file (file-relative-name buffer-file-name (flutter-project-get-root)))
         (line (line-number-at-pos (point))))
-    (flutter--test "--plain-name" (flutter--find-test-case line) test-file)))
+    (flutter--test
+     "--plain-name"
+     (format "'%s'" (flutter--find-test-case line))
+     test-file)))
 
 ;;;###autoload
 (define-derived-mode flutter-mode comint-mode "Flutter"

@@ -63,6 +63,17 @@
   (copy-keymap comint-mode-map)
   "Basic mode map for `flutter-run'.")
 
+(defvar flutter-test-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-c C-t n")   'flutter-test-all)
+    (define-key map (kbd "C-c C-t C-n") 'flutter-test-all)
+    (define-key map (kbd "C-c C-t t")   'flutter-test-current-file)
+    (define-key map (kbd "C-c C-t C-t") 'flutter-test-current-file)
+    (define-key map (kbd "C-c C-t T")   'flutter-test-at-point)
+    (define-key map (kbd "C-c C-t C-T") 'flutter-test-at-point)
+    map)
+  "The keymap used in command `flutter-test-mode' buffers.")
+
 (defun flutter--make-interactive-function (key name)
   "Define a function that sends KEY to the `flutter` process.
 The function's name will be NAME prefixed with 'flutter-'."
@@ -177,6 +188,17 @@ The title will be in match 2.")
     (concat (if bin (file-name-as-directory bin) "") "flutter")))
 
 ;;;###autoload
+(define-minor-mode flutter-test-mode
+  "Toggle Flutter-Test minor mode.
+With no argument, this command toggles the mode. Non-null prefix
+argument turns on the mode. Null prefix argument turns off the
+mode."
+  :init-value nil
+  :lighter " Flutter-Test"
+  :keymap 'flutter-test-mode-map
+  :group 'flutter-test)
+
+;;;###autoload
 (defun flutter-run (&optional args)
   "Execute `flutter run` inside Emacs.
 
@@ -229,7 +251,12 @@ args."
 \\{flutter-mode-map}"
   (setq comint-prompt-read-only t))
 
+(defun flutter-test-enable ()
+  "Enable the flutter test mode."
+  (flutter-test-mode t))
+
 (add-hook 'flutter-mode-hook #'flutter--initialize)
+(add-hook 'dart-mode-hook #'flutter-test-enable)
 
 (provide 'flutter)
 ;;; flutter.el ends here

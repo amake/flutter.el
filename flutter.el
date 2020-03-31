@@ -256,7 +256,6 @@ args."
   (flutter-test-mode t))
 
 (add-hook 'flutter-mode-hook #'flutter--initialize)
-(add-hook 'dart-mode-hook #'flutter-test-enable)
 
 (provide 'flutter)
 ;;; flutter.el ends here

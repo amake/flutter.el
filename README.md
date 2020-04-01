@@ -48,7 +48,8 @@ A [Flycheck](https://www.flycheck.org/) checker calling
 `intl_translation:extract_to_arb` from the
 [`intl_translation`](https://pub.dev/packages/intl_translation) package is
 available for making sure your strings are defined in the correct way. This is
-published as a separate, optional package: flutter-l10n-flycheck.
+published as a separate, optional package:
+[flutter-l10n-flycheck](https://melpa.org/#/flutter-l10n-flycheck).
 
 ## Run tests
 

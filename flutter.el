@@ -251,10 +251,6 @@ args."
 \\{flutter-mode-map}"
   (setq comint-prompt-read-only t))
 
-(defun flutter-test-enable ()
-  "Enable the flutter test mode."
-  (flutter-test-mode t))
-
 (add-hook 'flutter-mode-hook #'flutter--initialize)
 
 (provide 'flutter)

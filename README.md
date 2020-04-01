@@ -98,10 +98,9 @@ put the Flutter SDK in `/Applications/flutter`:
 ```elisp
 ;; Assuming usage with dart-mode
 (use-package dart-mode
-  :ensure-system-package (dart_language_server . "pub global activate dart_language_server")
-  :custom
-  (dart-format-on-save t)
-  (dart-sdk-path "/Applications/flutter/bin/cache/dart-sdk/"))
+  :hook (dart-mode . (lambda ()
+                       (when (flutter-test-file-p)
+                         (flutter-test-mode)))))
 
 (use-package flutter
   :after dart-mode

@@ -198,6 +198,12 @@ mode."
   :keymap 'flutter-test-mode-map
   :group 'flutter-test)
 
+(defun flutter-test-file-p ()
+  "Return non-nil if the current buffer appears to be a test file."
+  (save-excursion
+    (goto-char (point-min))
+    (re-search-forward "^import 'package:flutter_test/flutter_test.dart';" nil t)))
+
 ;;;###autoload
 (defun flutter-run (&optional args)
   "Execute `flutter run` inside Emacs.

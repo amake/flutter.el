@@ -101,6 +101,7 @@ put the Flutter SDK in `/Applications/flutter`:
 ```elisp
 ;; Assuming usage with dart-mode
 (use-package dart-mode
+  ;; Optional
   :hook (dart-mode . (lambda ()
                        (when (flutter-test-file-p)
                          (flutter-test-mode)))))

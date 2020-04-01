@@ -59,6 +59,9 @@ available:
 - `flutter-test-current-file` - run all tests inside the current file.
 - `flutter-test-at-point` - run single test or group of tests at point.
 
+Easily activate keybindings for these with the `flutter-test-mode` minor
+mode.
+
 # Installation
 
 You can install from [MELPA](https://melpa.org/#/flutter) with `package.el`:

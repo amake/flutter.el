@@ -63,6 +63,17 @@
   (copy-keymap comint-mode-map)
   "Basic mode map for `flutter-run'.")
 
+(defvar flutter-test-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-c C-t n")   'flutter-test-all)
+    (define-key map (kbd "C-c C-t C-n") 'flutter-test-all)
+    (define-key map (kbd "C-c C-t t")   'flutter-test-current-file)
+    (define-key map (kbd "C-c C-t C-t") 'flutter-test-current-file)
+    (define-key map (kbd "C-c C-t T")   'flutter-test-at-point)
+    (define-key map (kbd "C-c C-t C-T") 'flutter-test-at-point)
+    map)
+  "The keymap used in command `flutter-test-mode' buffers.")
+
 (defun flutter--make-interactive-function (key name)
   "Define a function that sends KEY to the `flutter` process.
 The function's name will be NAME prefixed with 'flutter-'."
@@ -129,13 +140,40 @@ ARGS is a space-delimited string of CLI flags passed to
    (let ((proc (get-buffer-process flutter-buffer-name)))
      (comint-send-string proc command))))
 
-(defun flutter--test (&optional args)
+(defun flutter--test (&rest args)
   "Execute `flutter test` inside Emacs.
 
-ARGS is a space-delimited string of CLI flags passed to
+ARGS is a list of CLI flags passed to
 `flutter`, and can be nil."
   (flutter--from-project-root
-   (compilation-start (format "%s test %s" (flutter-build-command) (or args "")) t)))
+   (compilation-start (format "%s test %s" (flutter-build-command) (mapconcat 'identity args " ")) t)))
+
+;; The second part of the regexp is a translation of this PCRE, which correctly
+;; handles escaped quotes:
+;;
+;; \((['\"])(.*?(?<!\\)(?:\\\\)*)\1,
+;;
+;; Emacs doesn't have negative lookbehind, so the above is reimplemented as:
+;;
+;; \((['\"])(.*[^\\](?:\\\\)*|(?:\\\\)*)\1,
+;;
+;; This was then translated to the below with the pcre2el package:
+;;
+;; (rxt-pcre-to-elisp (read-string "regexp: "))
+(defconst flutter--test-case-regexp
+  (concat "^[ \t]*\\(?:testWidgets\\|test\\|group\\)"
+          "(\\([\"']\\)\\(.*[^\\]\\(?:\\\\\\\\\\)*\\|\\(?:\\\\\\\\\\)*\\)\\1,")
+  "Regexp for finding the string title of a test or test group.
+The title will be in match 2.")
+
+(defun flutter--find-test-case (line)
+  "Search backwards for test name starting at LINE on current buffer."
+  (save-excursion
+    (goto-char (point-min))
+    (forward-line (1- line))
+    (end-of-line)
+    (if (re-search-backward flutter--test-case-regexp nil t)
+        (match-string 2))))
 
 (defun flutter--initialize ()
   "Helper function to initialize Flutter."
@@ -148,6 +186,17 @@ ARGS is a space-delimited string of CLI flags passed to
   "Build flutter command to execute."
   (let ((bin (when flutter-sdk-path (concat (file-name-as-directory flutter-sdk-path) "bin"))))
     (concat (if bin (file-name-as-directory bin) "") "flutter")))
+
+;;;###autoload
+(define-minor-mode flutter-test-mode
+  "Toggle Flutter-Test minor mode.
+With no argument, this command toggles the mode. Non-null prefix
+argument turns on the mode. Null prefix argument turns off the
+mode."
+  :init-value nil
+  :lighter " Flutter-Test"
+  :keymap 'flutter-test-mode-map
+  :group 'flutter-test)
 
 ;;;###autoload
 (defun flutter-run (&optional args)
@@ -183,6 +232,17 @@ args."
   (interactive)
   (let ((test-file (file-relative-name buffer-file-name (flutter-project-get-root))))
     (flutter--test test-file)))
+
+;;;###autoload
+(defun flutter-test-at-point ()
+  "Execute `flutter test --plain-name <test-name-at-point> <current-file>` inside Emacs."
+  (interactive)
+  (let ((test-file (file-relative-name buffer-file-name (flutter-project-get-root)))
+        (line (line-number-at-pos (point))))
+    (flutter--test
+     "--plain-name"
+     (format "'%s'" (flutter--find-test-case line))
+     test-file)))
 
 ;;;###autoload
 (define-derived-mode flutter-mode comint-mode "Flutter"

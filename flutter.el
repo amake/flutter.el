@@ -65,12 +65,12 @@
 
 (defvar flutter-test-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-c C-t n")   'flutter-test-all)
-    (define-key map (kbd "C-c C-t C-n") 'flutter-test-all)
-    (define-key map (kbd "C-c C-t t")   'flutter-test-current-file)
-    (define-key map (kbd "C-c C-t C-t") 'flutter-test-current-file)
-    (define-key map (kbd "C-c C-t T")   'flutter-test-at-point)
-    (define-key map (kbd "C-c C-t C-T") 'flutter-test-at-point)
+    (define-key map (kbd "C-c C-t n")   'flutter-test-current-file)
+    (define-key map (kbd "C-c C-t C-n") 'flutter-test-current-file)
+    (define-key map (kbd "C-c C-t t")   'flutter-test-at-point)
+    (define-key map (kbd "C-c C-t C-t") 'flutter-test-at-point)
+    (define-key map (kbd "C-c C-t T")   'flutter-test-all)
+    (define-key map (kbd "C-c C-t C-T") 'flutter-test-all)
     map)
   "The keymap used in command `flutter-test-mode' buffers.")
 

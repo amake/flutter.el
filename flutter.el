@@ -161,7 +161,7 @@ ARGS is a list of CLI flags passed to
 ;;
 ;; (rxt-pcre-to-elisp (read-string "regexp: "))
 (defconst flutter--test-case-regexp
-  (concat "^[ \t]*\\(?:testWidgets\\|test\\|group\\)([\n]*[ \t]*"
+  (concat "^[ \t]*\\(?:testWidgets\\|test\\|group\\)([\n \t]*"
           "\\([\"']\\)\\(.*[^\\]\\(?:\\\\\\\\\\)*\\|\\(?:\\\\\\\\\\)*\\)\\1,")
   "Regexp for finding the string title of a test or test group.
 The title will be in match 2.")

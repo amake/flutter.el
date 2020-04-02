@@ -151,18 +151,18 @@ ARGS is a list of CLI flags passed to
 ;; The second part of the regexp is a translation of this PCRE, which correctly
 ;; handles escaped quotes:
 ;;
-;; \((['\"])(.*?(?<!\\)(?:\\\\)*)\1,
+;; (['\"])(.*?(?<!\\)(?:\\\\)*)\1,
 ;;
 ;; Emacs doesn't have negative lookbehind, so the above is reimplemented as:
 ;;
-;; \((['\"])(.*[^\\](?:\\\\)*|(?:\\\\)*)\1,
+;; (['\"])(.*[^\\](?:\\\\)*|(?:\\\\)*)\1,
 ;;
 ;; This was then translated to the below with the pcre2el package:
 ;;
 ;; (rxt-pcre-to-elisp (read-string "regexp: "))
 (defconst flutter--test-case-regexp
-  (concat "^[ \t]*\\(?:testWidgets\\|test\\|group\\)"
-          "(\\([\"']\\)\\(.*[^\\]\\(?:\\\\\\\\\\)*\\|\\(?:\\\\\\\\\\)*\\)\\1,")
+  (concat "^[ \t]*\\(?:testWidgets\\|test\\|group\\)([\n]*[ \t]*"
+          "\\([\"']\\)\\(.*[^\\]\\(?:\\\\\\\\\\)*\\|\\(?:\\\\\\\\\\)*\\)\\1,")
   "Regexp for finding the string title of a test or test group.
 The title will be in match 2.")
 

@@ -188,8 +188,9 @@ The title will be in match 2.")
 
 (defun flutter-build-command ()
   "Build flutter command to execute."
-  (let ((bin (when flutter-sdk-path (concat (file-name-as-directory flutter-sdk-path) "bin"))))
-    (concat (if bin (file-name-as-directory bin) "") "flutter")))
+  (let ((bin (when flutter-sdk-path
+               (concat (file-name-as-directory flutter-sdk-path) "bin/"))))
+    (concat (or bin "") "flutter")))
 
 (defun flutter-build-test-command ()
   "Build test command appropriate for the current buffer."

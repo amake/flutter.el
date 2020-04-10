@@ -183,6 +183,10 @@ The title will be in match 2.")
   "Helper function to initialize Flutter."
   (setq comint-process-echoes nil))
 
+(defun flutter--buffer-relative-file-name ()
+  "Return the current buffer's file name relative to project root."
+  (file-relative-name buffer-file-name (flutter-project-get-root)))
+
 
 ;;; Public interface
 
@@ -246,14 +250,13 @@ args."
 (defun flutter-test-current-file ()
   "Execute `flutter test <current-file>` inside Emacs."
   (interactive)
-  (let ((test-file (file-relative-name buffer-file-name (flutter-project-get-root))))
-    (flutter--test test-file)))
+  (flutter--test (flutter--buffer-relative-file-name)))
 
 ;;;###autoload
 (defun flutter-test-at-point ()
   "Execute `flutter test --plain-name <test-name-at-point> <current-file>` inside Emacs."
   (interactive)
-  (let ((test-file (file-relative-name buffer-file-name (flutter-project-get-root)))
+  (let ((test-file (flutter--buffer-relative-file-name))
         (line (line-number-at-pos (point))))
     (flutter--test
      "--plain-name"

@@ -146,7 +146,11 @@ ARGS is a space-delimited string of CLI flags passed to
 ARGS is a list of CLI flags passed to
 `flutter`, and can be nil."
   (flutter--from-project-root
-   (compilation-start (format "%s test %s" (flutter-build-command) (mapconcat 'identity args " ")) t)))
+   (compilation-start
+    (format "%s %s"
+            (flutter-build-test-command)
+            (mapconcat #'identity args " "))
+    t)))
 
 ;; The second part of the regexp is a translation of this PCRE, which correctly
 ;; handles escaped quotes:
@@ -187,6 +191,11 @@ The title will be in match 2.")
   (let ((bin (when flutter-sdk-path (concat (file-name-as-directory flutter-sdk-path) "bin"))))
     (concat (if bin (file-name-as-directory bin) "") "flutter")))
 
+(defun flutter-build-test-command ()
+  "Build test command appropriate for the current buffer."
+  (cond ((flutter-test-file-p) "flutter test")
+        (t "pub run test")))
+
 ;;;###autoload
 (define-minor-mode flutter-test-mode
   "Toggle Flutter-Test minor mode.
@@ -199,7 +208,7 @@ mode."
   :group 'flutter-test)
 
 (defun flutter-test-file-p ()
-  "Return non-nil if the current buffer appears to be a test file."
+  "Return non-nil if the current buffer appears to be a Flutter test file."
   (save-excursion
     (goto-char (point-min))
     (re-search-forward "^import 'package:flutter_test/flutter_test.dart';" nil t)))

@@ -69,8 +69,8 @@
     (define-key map (kbd "C-c C-t C-n") 'flutter-test-current-file)
     (define-key map (kbd "C-c C-t t")   'flutter-test-at-point)
     (define-key map (kbd "C-c C-t C-t") 'flutter-test-at-point)
-    (define-key map (kbd "C-c C-t T")   'flutter-test-all)
-    (define-key map (kbd "C-c C-t C-T") 'flutter-test-all)
+    (define-key map (kbd "C-c C-t a")   'flutter-test-all)
+    (define-key map (kbd "C-c C-t C-a") 'flutter-test-all)
     map)
   "The keymap used in command `flutter-test-mode' buffers.")
 

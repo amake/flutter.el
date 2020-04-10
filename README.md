@@ -103,9 +103,7 @@ put the Flutter SDK in `/Applications/flutter`:
 ;; Assuming usage with dart-mode
 (use-package dart-mode
   ;; Optional
-  :hook (dart-mode . (lambda ()
-                       (when (flutter-test-file-p)
-                         (flutter-test-mode)))))
+  :hook (dart-mode . flutter-test-mode))
 
 (use-package flutter
   :after dart-mode

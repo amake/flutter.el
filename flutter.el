@@ -198,8 +198,9 @@ The title will be in match 2.")
 
 (defun flutter-build-test-command ()
   "Build test command appropriate for the current buffer."
-  (cond ((flutter-test-file-p) "flutter test")
-        (t "pub run test")))
+  (let ((flutter (flutter-build-command)))
+    (cond ((flutter-test-file-p) (format "%s test" flutter))
+          (t (format "%s pub run test" flutter)))))
 
 ;;;###autoload
 (define-minor-mode flutter-test-mode

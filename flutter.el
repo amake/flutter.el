@@ -257,12 +257,12 @@ args."
 (defun flutter-test-at-point ()
   "Execute `flutter test --plain-name <test-name-at-point> <current-file>` inside Emacs."
   (interactive)
-  (let ((test-file (flutter--buffer-relative-file-name))
-        (line (line-number-at-pos (point))))
-    (flutter--test
-     "--plain-name"
-     (format "'%s'" (flutter--find-test-case line))
-     test-file)))
+  (let* ((test-file (flutter--buffer-relative-file-name))
+         (line (line-number-at-pos (point)))
+         (case (flutter--find-test-case line)))
+    (if case
+        (flutter--test "--plain-name" (format "'%s'" case) test-file)
+      (error "No test case found at point"))))
 
 ;;;###autoload
 (define-derived-mode flutter-mode comint-mode "Flutter"

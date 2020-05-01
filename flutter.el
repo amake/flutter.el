@@ -199,7 +199,7 @@ The title will be in match 2.")
 (defun flutter-build-test-command ()
   "Build test command appropriate for the current buffer."
   (let ((flutter (flutter-build-command)))
-    (cond ((flutter-test-file-p) (format "%s test" flutter))
+    (cond ((flutter-file-p) (format "%s test" flutter))
           (t (format "%s pub run test" flutter)))))
 
 ;;;###autoload
@@ -218,6 +218,12 @@ mode."
   (save-excursion
     (goto-char (point-min))
     (re-search-forward "^import 'package:flutter_test/flutter_test.dart';" nil t)))
+
+(defun flutter-file-p ()
+  "Return non-nil if the current buffer appears to be a Flutter file."
+  (save-excursion
+    (goto-char (point-min))
+    (re-search-forward "^import 'package:flutter/.*';" nil t)))
 
 ;;;###autoload
 (defun flutter-run (&optional args)

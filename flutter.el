@@ -223,7 +223,7 @@ mode."
   "Return non-nil if the current buffer appears to be a Flutter file."
   (save-excursion
     (goto-char (point-min))
-    (re-search-forward "^import 'package:flutter/.*';" nil t)))
+    (re-search-forward "^import 'package:flutter\\(?:_test\\)?/.*';" nil t)))
 
 ;;;###autoload
 (defun flutter-run (&optional args)

@@ -200,6 +200,8 @@ The title will be in match 2.")
   "Build test command appropriate for the current buffer."
   (let ((flutter (flutter-build-command)))
     (cond ((flutter-file-p) (format "%s test" flutter))
+          ;; `flutter pub` is failing lately, so prefer "real" `pub`
+          ((executable-find "pub") "pub run test")
           (t (format "%s pub run test" flutter)))))
 
 ;;;###autoload

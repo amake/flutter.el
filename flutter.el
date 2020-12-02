@@ -119,7 +119,7 @@ the `flutter` process."
 ARGS is a space-delimited string of CLI flags passed to
 `flutter`, and can be nil."
   `(flutter--from-project-root
-    (let* ((buffer (get-buffer-create flutter-buffer-name))
+    (let* ((buffer (flutter--get-buffer-create flutter-buffer-name))
            (alive (flutter--running-p))
            (arglist (if ,args (split-string ,args))))
       (unless alive
@@ -128,6 +128,21 @@ ARGS is a space-delimited string of CLI flags passed to
         (unless (derived-mode-p 'flutter-mode)
           (flutter-mode)))
       ,@body)))
+
+(defun flutter--get-buffer-create (buffer-or-name)
+  "Same as `get-buffer-create' but ensures BUFFER-OR-NAME has our CWD.
+
+If the existing buffer's CWD doesn't match, kill it and recreate it."
+  (let* ((existing-buf (get-buffer buffer-or-name))
+         (existing-buf-cwd (when existing-buf
+                             (with-current-buffer existing-buf
+                               default-directory))))
+    (if (string= default-directory existing-buf-cwd)
+        existing-buf
+      (when existing-buf
+        (unless (kill-buffer existing-buf)
+          (error "Flutter already running in %s" existing-buf-cwd)))
+      (get-buffer-create buffer-or-name))))
 
 (defun flutter--running-p ()
   "Return non-nil if the `flutter` process is already running."

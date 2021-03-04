@@ -131,6 +131,10 @@ only for making `bounds-of-thing-at-point' work."
   "Find the root of the project."
   (concat (file-name-as-directory (flutter-project-get-root)) flutter-l10n-file))
 
+(defun flutter-l10n--l10n-file-exists-p ()
+  "Determine if the L10N file exists."
+  (file-exists-p (flutter-l10n--get-l10n-file)))
+
 (defun flutter-l10n--append-to-current-line (contents)
   "Append CONTENTS to end of current line."
   (save-excursion
@@ -165,18 +169,21 @@ only for making `bounds-of-thing-at-point' work."
   "Return a hash table of existing string IDs.
 Searches `flutter-l10n-class' in `flutter-l10n-file'.  Values are
 t."
-  (let ((result (make-hash-table :test #'equal))
-        (target (find-file-noselect (flutter-l10n--get-l10n-file))))
-    (with-current-buffer target
-      (goto-char 1)
-      (let ((class-pattern (flutter-l10n--gen-class-decl-pattern
-                            flutter-l10n-classname))
-            (end (save-excursion
-                   (flutter-l10n--jump-to-end-of-class flutter-l10n-classname)
-                   (point))))
-        (re-search-forward class-pattern)
-        (while (re-search-forward "^[ \t]*String \\(?:get \\)?\\([a-zA-Z0-9_]+\\)" end t)
-          (puthash (match-string-no-properties 1) t result))))
+  (let ((result (make-hash-table :test #'equal)))
+    (if (flutter-l10n--l10n-file-exists-p)
+      (with-current-buffer (find-file-noselect (flutter-l10n--get-l10n-file))
+        (goto-char 1)
+        (let ((class-pattern (flutter-l10n--gen-class-decl-pattern
+                              flutter-l10n-classname))
+              (end (save-excursion
+                     (flutter-l10n--jump-to-end-of-class flutter-l10n-classname)
+                     (point))))
+          (re-search-forward class-pattern)
+          (while (re-search-forward "^[ \t]*String \\(?:get \\)?\\([a-zA-Z0-9_]+\\)" end t)
+            (puthash (match-string-no-properties 1) t result))))
+      ;; Don't `warn' here because it's too intrusive. But with `message' no one
+      ;; will notice. TODO: Fix this
+      (message "The Flutter L10N file doesn't exist!"))
     result))
 
 (defun flutter-l10n--read-id (existing)

@@ -204,7 +204,7 @@ well-formed."
     (save-excursion
       (goto-char 1)
       (while (re-search-forward "//\\|[][(){}]" curr-point t)
-        (let ((char (match-string 0)))
+        (let ((char (match-string-no-properties 0)))
           (cond ((string= "//" char)
                  (end-of-line))
                 ((string-match (regexp-quote char) "([{")

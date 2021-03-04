@@ -207,9 +207,9 @@ well-formed."
         (let ((char (match-string-no-properties 0)))
           (cond ((string= "//" char)
                  (end-of-line))
-                ((string-match (regexp-quote char) "([{")
+                ((member char '("(" "[" "{"))
                  (push `(,char . ,(match-beginning 0)) structure))
-                ((string-match (regexp-quote char) ")]}")
+                ((member char '(")" "]" "}"))
                  (pop structure))))))
     structure))
 

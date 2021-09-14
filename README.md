@@ -33,14 +33,14 @@ practices](https://flutter.dev/docs/development/accessibility-and-localization/i
      e.g. `MyLocalizations.of(context).myString`
   3. Deletes any `const` keywords that apply to the reference
   4. Appends the original string content as an end-of-line comment
-  5. Appends a definition for the string to the localizations class, e.g.
+  5. Appends a definition for the string to the template ARB file, e.g.
 
     ```
-    String get myString => Intl.message('Hello, world!', name: 'myString');
+    "myString": "Hello, world!",
     ```
 - `flutter-l10n-externalize-at-point`: Does all of the above but for the string
   literal at point only; kills the definition instead of adding it to the
-  localizations class.
+  template ARB file.
 
 ## Lint your localization strings
 
@@ -82,17 +82,19 @@ M-x package-install flutter-l10n-flycheck
 Set `flutter-sdk-path` to the location of your Flutter SDK. This isn't even
 necessary if the `flutter` binary is on your `PATH`.
 
-To use the localization tools you will want to customize these variables for
-your project:
+The localization tools will read your `/l10n.yaml` file by default, but
+alternatively you can set the following variables:
 
-- `flutter-l10n-classname`: The name of the localizations class where strings
-  are defined
-- `flutter-l10n-file`: The relative path from project root to the file that
-  defines the localizations class. Should include the leading `lib/`.
+- `flutter-l10n-arb-dir`: The relative path from project root where your ARB
+  files are stored
+- `flutter-l10n-template-arb-file`: The name of the ARB file that represents the
+  default (source) language for your app
+- `flutter-l10n-output-localization-file`: The name of the generated Dart file
+  that you use in your app
 
 If using flutter-l10n-flycheck be sure to call `flutter-l10n-flycheck-setup` and
-set your L10N file (the one specified in `flutter-l10n-file`) to use the
-checker: `M-x add-file-local-variable-prop-line flycheck-checker intl_translation`
+set your L10N file to use the checker: `M-x add-file-local-variable-prop-line
+flycheck-checker intl_translation`
 
 ## Example
 
@@ -117,14 +119,6 @@ put the Flutter SDK in `/Applications/flutter`:
   :after flutter
   :config
   (flutter-l10n-flycheck-setup))
-```
-
-A sample `.dir-locals.el` to go in your project root:
-
-```elisp
-((dart-mode
-  (flutter-l10n-classname . "AppLocalizations")
-  (flutter-l10n-file . "lib/app_l10n.dart")))
 ```
 
 The propline for your L10N file:

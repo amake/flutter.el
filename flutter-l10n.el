@@ -38,39 +38,46 @@
 
 ;;; Public variables
 
-(defvar-local flutter-l10n-classname "AppLocalizations"
-  "The name of the class that holds the application's string
-definitions.")
+(defvar-local flutter-l10n-conf "l10n.yaml"
+  "The project's l10n configuration file.")
 
-(put 'flutter-l10n-classname 'safe-local-variable #'stringp)
+(put 'flutter-l10n-conf 'safe-local-variable #'stringp)
 
-(defvar-local flutter-l10n-file "lib/app_l10n.dart"
-  "The name of the file relative to the project root that holds
-the string definitions class.")
+(defvar-local flutter-l10n-arb-dir nil
+  "The project's l10n directory. Example: \"lib/l10n\"")
 
-(put 'flutter-l10n-file 'safe-local-variable #'stringp)
+(put 'flutter-l10n-arb-dir 'safe-local-variable #'stringp)
+
+(defvar-local flutter-l10n-template-arb-file nil
+  "The project's default strings file. Example: \"app_en.arb\"")
+
+(put 'flutter-l10n-template-arb-file 'safe-local-variable #'stringp)
+
+(defvar-local flutter-l10n-output-localization-file nil
+  "The project's generated Dart strings file. Example: \"app_localizations.dart\"")
+
+(put 'flutter-l10n-output-localization-file 'safe-local-variable #'stringp)
 
 
 ;;; Code generation
 
-(defconst flutter-l10n--ref-templ "%s.of(context).%s")
+(defconst flutter-l10n--ref-templ "%s.of(context)!.%s")
 
 (defun flutter-l10n--gen-string-ref (id)
   "Generate a reference to the string with ID."
-  (format flutter-l10n--ref-templ flutter-l10n-classname id))
+  (format flutter-l10n--ref-templ (flutter-l10n--get-l10n-classname) id))
 
 (defconst flutter-l10n--def-templ-interp
-  "String %s() => Intl.message(%s, name: '%s', args: []);")
+  "\"%s\": \"%s\",\n\"@%s\": {\n  \"placeholders\": {\n  }\n},\n")
 
 (defconst flutter-l10n--def-templ-nointerp
-  "String get %s => Intl.message(%s, name: '%s');")
+  "\"%s\": \"%s\",\n")
 
 (defun flutter-l10n--gen-string-def (id value)
   "Generate a l10n string definition with ID and VALUE."
-  (let ((template (if (flutter-l10n--has-interp value)
-                      flutter-l10n--def-templ-interp
-                    flutter-l10n--def-templ-nointerp)))
-    (format template id value id)))
+  (if (flutter-l10n--has-interp value)
+      (format flutter-l10n--def-templ-interp id value id)
+    (format flutter-l10n--def-templ-nointerp id value)))
 
 (defun flutter-l10n--has-interp (string)
   "Return non-nil if STRING has interpolation."
@@ -84,20 +91,42 @@ the string definitions class.")
 
 (defconst flutter-l10n--import-templ "import 'package:%s/%s';")
 
-(defun flutter-l10n--gen-import (file)
-  "Generate an import statement for FILE in the current project."
-  (format flutter-l10n--import-templ
-          (flutter-project-get-name)
-          (string-remove-prefix "lib/" file)))
-
-(defconst flutter-l10n--class-decl-pattern-templ "class %s[^{]*?{")
-
-(defun flutter-l10n--gen-class-decl-pattern (classname)
-  "Generate a regexp to match a class declaration with CLASSNAME."
-  (format flutter-l10n--class-decl-pattern-templ classname))
+(defun flutter-l10n--gen-import (package file)
+  "Generate an import statement for FILE in PACKAGE."
+  (format flutter-l10n--import-templ package file))
 
 
 ;;; Internal utilities
+
+(defun flutter-l10n--ensure-conf-loaded ()
+  "Ensure that l10n conf data is loaded."
+  (unless (and flutter-l10n-arb-dir
+               flutter-l10n-template-arb-file
+               flutter-l10n-output-localization-file)
+    (flutter-l10n--load-conf)))
+
+(defun flutter-l10n--load-conf ()
+  "Load project config file."
+  (let ((conf (concat (file-name-as-directory (flutter-project-get-root)) flutter-l10n-conf)))
+    (dolist (pair (flutter-l10n--read-yaml conf))
+      (cond ((string= (car pair) "arb-dir")
+             (setq-local flutter-l10n-arb-dir (cdr pair)))
+            ((string= (car pair) "template-arb-file")
+             (setq-local flutter-l10n-template-arb-file (cdr pair)))
+            ((string= (car pair) "output-localization-file")
+             (setq-local flutter-l10n-output-localization-file (cdr pair)))))))
+
+(defun flutter-l10n--read-yaml (file)
+  "Read YAML-format FILE and return contents as alist."
+  (let (result)
+    (with-temp-buffer
+      (insert-file-contents file)
+      (goto-char 1)
+      (while (re-search-forward "^ *\\([^#][^:]+\\): +\\([^\n]+\\)" nil t)
+        (let* ((key (match-string-no-properties 1))
+               (value (match-string-no-properties 2)))
+          (push `(,key . ,value) result))))
+    result))
 
 (defun flutter-l10n--forward-dart-string (&optional arg)
   "Move to the end or beginning of the string at point.
@@ -113,7 +142,7 @@ only for making `bounds-of-thing-at-point' work."
 
 (defun flutter-l10n--normalize-string (string)
   "Normalize a Dart STRING."
-  (format "'%s'" (flutter-l10n--strip-quotes string)))
+  (flutter-l10n--strip-quotes string))
 
 (defun flutter-l10n--strip-quotes (string)
   "Strip qutoes from a quoted STRING."
@@ -129,7 +158,16 @@ only for making `bounds-of-thing-at-point' work."
 
 (defun flutter-l10n--get-l10n-file ()
   "Find the root of the project."
-  (concat (file-name-as-directory (flutter-project-get-root)) flutter-l10n-file))
+  (flutter-l10n--ensure-conf-loaded)
+  (concat (flutter-project-get-root)
+          (file-name-as-directory flutter-l10n-arb-dir) flutter-l10n-template-arb-file))
+
+(defun flutter-l10n--get-l10n-classname ()
+  "The name of the class that has the app's string definitions."
+  (flutter-l10n--ensure-conf-loaded)
+  (replace-regexp-in-string "_" ""
+   (capitalize
+    (string-remove-suffix ".dart" flutter-l10n-output-localization-file))))
 
 (defun flutter-l10n--l10n-file-exists-p ()
   "Determine if the L10N file exists."
@@ -141,29 +179,29 @@ only for making `bounds-of-thing-at-point' work."
     (end-of-line)
     (insert " " contents)))
 
-(defun flutter-l10n--jump-to-end-of-class (classname)
-  "Jump to the end of the CLASSNAME body."
-  (let ((pattern (flutter-l10n--gen-class-decl-pattern classname)))
-    (re-search-forward pattern)
-    (backward-char)
-    (forward-sexp)))
-
 (defun flutter-l10n--append-to-l10n-file (definition)
   "Append DEFINITION to the end of the l10n class in the l10n file."
   (let ((target (find-file-noselect (flutter-l10n--get-l10n-file))))
     (with-current-buffer target
-      (goto-char 1)
-      (flutter-l10n--jump-to-end-of-class flutter-l10n-classname)
-      (backward-char)
+      (goto-char (max-char))
+      (re-search-backward "}")
       (insert "\n  " definition "\n"))))
 
-(defun flutter-l10n--import-file (file)
-  "Add an import statement for FILE to the current file."
-  (let ((statement (flutter-l10n--gen-import file)))
+(defun flutter-l10n--import-file (package file)
+  "Add an import statement for FILE in PACKAGE to the current file."
+  (let ((statement (flutter-l10n--gen-import package file)))
     (save-excursion
       (goto-char 1)
       (unless (search-forward statement nil t) ; already imported
         (insert statement "\n")))))
+
+(defun flutter-l10n--import-l10n-file ()
+  "Add an import statement for the l10n file to the current file."
+  (flutter-l10n--ensure-conf-loaded)
+  (flutter-l10n--import-file
+   "flutter_gen"
+   (concat (file-name-as-directory "gen_l10n")
+           flutter-l10n-output-localization-file)))
 
 (defun flutter-l10n--get-existing-ids ()
   "Return a hash table of existing string IDs.
@@ -173,14 +211,10 @@ t."
     (if (flutter-l10n--l10n-file-exists-p)
       (with-current-buffer (find-file-noselect (flutter-l10n--get-l10n-file))
         (goto-char 1)
-        (let ((class-pattern (flutter-l10n--gen-class-decl-pattern
-                              flutter-l10n-classname))
-              (end (save-excursion
-                     (flutter-l10n--jump-to-end-of-class flutter-l10n-classname)
-                     (point))))
-          (re-search-forward class-pattern)
-          (while (re-search-forward "^[ \t]*String \\(?:get \\)?\\([a-zA-Z0-9_]+\\)" end t)
-            (puthash (match-string-no-properties 1) t result))))
+        ;; This relies on a particular whitespace configuration
+        ;; TODO: Try to properly parse JSON
+        (while (re-search-forward "^[ \t]*\"\\([a-zA-Z0-9_]+\\)\":[ \t]+\".*\"" nil t)
+          (puthash (match-string-no-properties 1) t result)))
       ;; Don't `warn' here because it's too intrusive. But with `message' no one
       ;; will notice. TODO: Fix this
       (message "The Flutter L10N file doesn't exist!"))
@@ -263,14 +297,13 @@ ring for yanking into the l10n class."
          (id (flutter-l10n--read-id existing))
          (definition (flutter-l10n--gen-string-def id value))
          (reference (flutter-l10n--gen-string-ref id))
-         (comment (flutter-l10n--gen-comment
-                   (flutter-l10n--strip-quotes value))))
+         (comment (flutter-l10n--gen-comment value)))
     (when id ; null id means user chose to skip
       (delete-region beg end)
       (insert reference)
       (flutter-l10n--delete-applied-consts)
       (flutter-l10n--append-to-current-line comment)
-      (flutter-l10n--import-file flutter-l10n-file)
+      (flutter-l10n--import-l10n-file)
       (unless (gethash id existing)
         (kill-new definition)))))
 
@@ -297,8 +330,7 @@ of the l10n class indicated by `flutter-l10n-file'."
                      (id (flutter-l10n--read-id existing))
                      (definition (flutter-l10n--gen-string-def id value))
                      (reference (flutter-l10n--gen-string-ref id))
-                     (comment (flutter-l10n--gen-comment
-                               (flutter-l10n--strip-quotes value))))
+                     (comment (flutter-l10n--gen-comment value)))
                 (when id ; null id means user chose to skip
                   ;; `replace-match' sometimes fails with
                   ;; "Match data clobbered by buffer modification hooks"
@@ -314,7 +346,7 @@ of the l10n class indicated by `flutter-l10n-file'."
                   (push id history)
                   (puthash id t existing))))))
       (if history
-          (flutter-l10n--import-file flutter-l10n-file))
+          (flutter-l10n--import-l10n-file))
       (deactivate-mark))))
 
 (provide 'flutter-l10n)

@@ -42,15 +42,6 @@ practices](https://flutter.dev/docs/development/accessibility-and-localization/i
   literal at point only; kills the definition instead of adding it to the
   template ARB file.
 
-## Lint your localization strings
-
-A [Flycheck](https://www.flycheck.org/) checker calling
-`intl_translation:extract_to_arb` from the
-[`intl_translation`](https://pub.dev/packages/intl_translation) package is
-available for making sure your strings are defined in the correct way. This is
-published as a separate, optional package:
-[flutter-l10n-flycheck](https://melpa.org/#/flutter-l10n-flycheck).
-
 ## Run tests
 
 Flutter.el helps you run tests of your flutter application. There are 3 commands
@@ -71,12 +62,6 @@ You can install from [MELPA](https://melpa.org/#/flutter) with `package.el`:
 M-x package-install flutter
 ```
 
-and, optionally
-
-```
-M-x package-install flutter-l10n-flycheck
-```
-
 # Configuration
 
 Set `flutter-sdk-path` to the location of your Flutter SDK. This isn't even
@@ -91,10 +76,6 @@ alternatively you can set the following variables:
   default (source) language for your app
 - `flutter-l10n-output-localization-file`: The name of the generated Dart file
   that you use in your app
-
-If using flutter-l10n-flycheck be sure to call `flutter-l10n-flycheck-setup` and
-set your L10N file to use the checker: `M-x add-file-local-variable-prop-line
-flycheck-checker intl_translation`
 
 ## Example
 
@@ -113,18 +94,6 @@ put the Flutter SDK in `/Applications/flutter`:
               ("C-M-x" . #'flutter-run-or-hot-reload))
   :custom
   (flutter-sdk-path "/Applications/flutter/"))
-
-;; Optional
-(use-package flutter-l10n-flycheck
-  :after flutter
-  :config
-  (flutter-l10n-flycheck-setup))
-```
-
-The propline for your L10N file:
-
-```dart
-// -*- flycheck-checker: intl_translation; -*-
 ```
 
 # License

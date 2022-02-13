@@ -35,7 +35,9 @@
 
 (defun flutter-l10n-flycheck--enable-p ()
   "Determine whether to enable the intl_translation checker."
-  (string= (buffer-file-name) (expand-file-name (flutter-l10n--get-l10n-file))))
+  (condition-case nil
+      (string= (buffer-file-name) (expand-file-name (flutter-l10n--get-l10n-file)))
+    (error nil)))
 
 (flycheck-define-checker intl_translation
   "A linter for intl_translation strings files."

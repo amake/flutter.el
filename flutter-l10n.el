@@ -108,13 +108,15 @@
 (defun flutter-l10n--load-conf ()
   "Load project config file."
   (let ((conf (concat (file-name-as-directory (flutter-project-get-root)) flutter-l10n-conf)))
-    (dolist (pair (flutter-l10n--read-yaml conf))
-      (cond ((string= (car pair) "arb-dir")
-             (setq-local flutter-l10n-arb-dir (cdr pair)))
-            ((string= (car pair) "template-arb-file")
-             (setq-local flutter-l10n-template-arb-file (cdr pair)))
-            ((string= (car pair) "output-localization-file")
-             (setq-local flutter-l10n-output-localization-file (cdr pair)))))))
+    (if (file-readable-p conf)
+        (dolist (pair (flutter-l10n--read-yaml conf))
+          (cond ((string= (car pair) "arb-dir")
+                 (setq-local flutter-l10n-arb-dir (cdr pair)))
+                ((string= (car pair) "template-arb-file")
+                 (setq-local flutter-l10n-template-arb-file (cdr pair)))
+                ((string= (car pair) "output-localization-file")
+                 (setq-local flutter-l10n-output-localization-file (cdr pair))))))
+    (error "Cannot read flutter l10n conf file at %s" conf)))
 
 (defun flutter-l10n--read-yaml (file)
   "Read YAML-format FILE and return contents as alist."

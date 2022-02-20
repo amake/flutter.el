@@ -43,7 +43,8 @@
 (defconst flutter-interactive-keys-alist
   '(("r" . hot-reload)
     ("R" . hot-restart)
-    ("h" . help)
+    ("v" . open-devtools)
+    ("s" . screenshot)
     ("w" . widget-hierarchy)
     ("t" . rendering-tree)
     ("L" . layers)
@@ -51,12 +52,16 @@
     ("U" . accessibility-inverse-hit-test-order)
     ("i" . inspector)
     ("p" . construction-lines)
+    ("I" . invert-oversized-images)
     ("o" . operating-systems)
-    ("z" . elevation-checker)
+    ("b" . brightness)
     ("P" . performance-overlay)
     ("a" . timeline-events)
-    ("s" . screenshot)
+    ("M" . write-shaders)
+    ("g" . run-code-generators)
+    ("h" . help)
     ("d" . detatch)
+    ("c" . clear-screen)
     ("q" . quit)))
 
 (defvar flutter-mode-map

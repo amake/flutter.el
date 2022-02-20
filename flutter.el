@@ -278,7 +278,7 @@ args."
 
 ;;;###autoload
 (defun flutter-test-at-point ()
-  "Execute `flutter test --plain-name <test-name-at-point> <current-file>` inside Emacs."
+  "Execute `flutter test --plain-name <test-name-at-point> <current-file>`."
   (interactive)
   (let* ((test-file (flutter--buffer-relative-file-name))
          (line (line-number-at-pos (point)))

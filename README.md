@@ -56,7 +56,9 @@ mode.
 
 # Installation
 
-You can install from [MELPA](https://melpa.org/#/flutter) with `package.el`:
+You can install from [MELPA](https://melpa.org/#/flutter) with `package.el`.
+
+First [get started with MELPA](https://melpa.org/#/getting-started), then run:
 
 ```
 M-x package-install flutter

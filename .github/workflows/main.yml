@@ -2,29 +2,32 @@ name: CI
 
 on:
   pull_request:
+    paths-ignore:
+      - '**.md'
   push:
     paths-ignore:
-    - '**.md'
+      - '**.md'
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         emacs_version:
-          - 24.4
-          - 24.5
-          - 25.1
-          - 25.2
           - 25.3
-          - 26.1
-          - 26.2
           - 26.3
+          - 27.2
+          - 28.1
+
     steps:
-    - uses: purcell/setup-emacs@master
+    - name: Set up Emacs
+      uses: purcell/setup-emacs@master
       with:
         version: ${{ matrix.emacs_version }}
 
-    - uses: actions/checkout@v1
-    - name: Run tests
-      run: 'make test-ci'
+    - name: Check out the source code
+      uses: actions/checkout@v3
+
+    - name: Test
+      run: make test

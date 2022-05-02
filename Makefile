@@ -1,38 +1,50 @@
-DEPENDENCIES := flycheck dash
-DEPENDENT_EL := flutter-l10n-flycheck.el
-FIND_PKG_DIR = $(shell find -L ~/.emacs.d/elpa -type d -regex '.*/$1-[0-9.]*')
-SEARCH_DIRS = $(foreach _,$(DEPENDENCIES),-L $(call FIND_PKG_DIR,$(_)))
-COMPILE_CMD = emacs -Q -L . $(SEARCH_DIRS) \
-	--eval '(setq byte-compile-error-on-warn t)' \
-	-batch -f batch-byte-compile
-EL_FILES := $(wildcard *.el)
+# Run an arbitrary Emacs version like
+#   make test emacs="docker run --rm -it -v $PWD:/work -w /work silex/emacs:26 emacs"
+emacs := emacs
+run_emacs = $(emacs) -Q -L . -L $(elpa_dir) -l package \
+	--eval "(setq package-user-dir (expand-file-name \"$(elpa_dir)\"))" \
+	--eval "(add-to-list 'package-archives '(\"melpa\" . \"https://melpa.org/packages/\") t)" \
+	--eval "(package-initialize)"
+elpa_dir := elpa
+
+dependencies := flycheck dash
 
 .PHONY: test
-test: ## Run regular test (full dependencies)
-test: test-impl
+test: ## Compile and run unit tests
+test: test-compile
 
-.PHONY: test-ci
-test-ci: ## Run tests for CI (no dependencies)
-test-ci: DEPENDENCIES :=
-test-ci: EL_FILES := $(filter-out $(DEPENDENT_EL),$(EL_FILES))
-test-ci: test-impl
+$(elpa_dir):
+	$(run_emacs) \
+		--eval "(unless (seq-every-p (lambda (e) (require e nil t)) '($(dependencies))) \
+			(package-refresh-contents) (mapc #'package-install '($(dependencies))))" \
+		--batch
 
-.PHONY: test-impl
-test-impl: $(EL_FILES)
-	$(COMPILE_CMD) $(EL_FILES)
+.PHONY: deps
+deps: $(elpa_dir)
+
+.PHONY: test-compile
+test-compile: | $(elpa_dir)
+	$(run_emacs) \
+		--eval '(setq byte-compile-error-on-warn t)' \
+		--batch -f batch-byte-compile *.el
 
 .PHONY: clean
 clean: ## Clean files
-	rm *.elc
+	rm -f *.elc
+
+.PHONY: clobber
+clobber: ## Remove all generated files
+clobber: clean
+	rm -rf $(elpa_dir)
 
 # Hooks
 
-HOOKS := $(filter-out %~,$(wildcard hooks/*))
-GIT_DIR := $(shell git rev-parse --git-dir)
+hooks := $(filter-out %~,$(wildcard hooks/*))
+git_dir := $(shell git rev-parse --git-dir)
 
 .PHONY: hooks
 hooks: ## Install helpful git hooks
-hooks: $(foreach _,$(HOOKS),$(GIT_DIR)/hooks/$(notdir $(_)))
+hooks: $(foreach _,$(hooks),$(git_dir)/hooks/$(notdir $(_)))
 
 $(GIT_DIR)/hooks/%: hooks/%
 	ln -s $(PWD)/$(<) $(@)

@@ -31,3 +31,8 @@ jobs:
 
     - name: Test
       run: make test
+
+    - name: Check formatting
+      run: |
+        make prettify
+        [ -z "$(git status --porcelain)" ]

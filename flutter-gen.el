@@ -82,7 +82,7 @@
   "Generate a merge implementation for class NAME with PROPERTIES."
   (let ((args-out (mapconcat (lambda (item)
                                (let ((name (car item)))
-                                (format "%s: other.%s" name name)))
+                                 (format "%s: other.%s" name name)))
                              properties
                              ", ")))
     (format flutter-gen--merge-templ name name args-out)))

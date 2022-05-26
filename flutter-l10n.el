@@ -167,7 +167,8 @@ only for making `bounds-of-thing-at-point' work."
 (defun flutter-l10n--get-l10n-classname ()
   "The name of the class that has the app's string definitions."
   (flutter-l10n--ensure-conf-loaded)
-  (replace-regexp-in-string "_" ""
+  (replace-regexp-in-string
+   "_" ""
    (capitalize
     (string-remove-suffix ".dart" flutter-l10n-output-localization-file))))
 
@@ -211,12 +212,12 @@ Searches `flutter-l10n-class' in `flutter-l10n-file'.  Values are
 t."
   (let ((result (make-hash-table :test #'equal)))
     (if (flutter-l10n--l10n-file-exists-p)
-      (with-current-buffer (find-file-noselect (flutter-l10n--get-l10n-file))
-        (goto-char 1)
-        ;; This relies on a particular whitespace configuration
-        ;; TODO: Try to properly parse JSON
-        (while (re-search-forward "^[ \t]*\"\\([a-zA-Z0-9_]+\\)\":[ \t]+\".*\"" nil t)
-          (puthash (match-string-no-properties 1) t result)))
+        (with-current-buffer (find-file-noselect (flutter-l10n--get-l10n-file))
+          (goto-char 1)
+          ;; This relies on a particular whitespace configuration
+          ;; TODO: Try to properly parse JSON
+          (while (re-search-forward "^[ \t]*\"\\([a-zA-Z0-9_]+\\)\":[ \t]+\".*\"" nil t)
+            (puthash (match-string-no-properties 1) t result)))
       ;; Don't `warn' here because it's too intrusive. But with `message' no one
       ;; will notice. TODO: Fix this
       (message "The Flutter L10N file doesn't exist!"))

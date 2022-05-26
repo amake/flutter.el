@@ -57,7 +57,7 @@ git_dir := $(shell git rev-parse --git-dir)
 
 .PHONY: hooks
 hooks: ## Install helpful git hooks
-hooks: $(foreach _,$(hooks),$(git_dir)/hooks/$(notdir $(_)))
+hooks: $(addprefix $(git_dir)/,$(hooks))
 
 $(git_dir)/hooks/%: hooks/%
 	ln -s $(PWD)/$(<) $(@)

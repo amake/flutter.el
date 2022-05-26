@@ -16,8 +16,8 @@ test: test-compile
 $(elpa_dir):
 	$(run_emacs) \
 		--eval '(make-directory "$(@)")' \
-		--eval "(unless (seq-every-p (lambda (e) (require e nil t)) '($(dependencies))) \
-			(package-refresh-contents) (mapc #'package-install '($(dependencies))))" \
+		--eval "(let ((to-install (seq-filter (lambda (e) (not (require e nil t))) '($(dependencies))))) \
+			(when to-install (package-refresh-contents) (mapc #'package-install to-install)))"
 
 .PHONY: deps
 deps: $(elpa_dir)

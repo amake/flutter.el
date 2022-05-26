@@ -1,11 +1,11 @@
 # Run an arbitrary Emacs version like
 #   make test emacs="docker run --rm -it -v $PWD:/work -w /work silex/emacs:26 emacs"
 emacs := emacs
-run_emacs = $(emacs) -Q -L . -L $(elpa_dir) -l package \
-	--eval "(setq package-user-dir (expand-file-name \"$(elpa_dir)\"))" \
-	--eval "(add-to-list 'package-archives '(\"melpa\" . \"https://melpa.org/packages/\") t)" \
-	--eval "(package-initialize)"
 elpa_dir := elpa
+run_emacs = $(emacs) -Q --batch -L . -L $(elpa_dir) -l package \
+	--eval '(setq package-user-dir (expand-file-name "$(elpa_dir)"))' \
+	--eval "(add-to-list 'package-archives '(\"melpa\" . \"https://melpa.org/packages/\") t)" \
+	--eval '(package-initialize)'
 
 dependencies := flycheck dash
 
@@ -15,9 +15,9 @@ test: test-compile
 
 $(elpa_dir):
 	$(run_emacs) \
+		--eval '(make-directory "$(@)")' \
 		--eval "(unless (seq-every-p (lambda (e) (require e nil t)) '($(dependencies))) \
 			(package-refresh-contents) (mapc #'package-install '($(dependencies))))" \
-		--batch
 
 .PHONY: deps
 deps: $(elpa_dir)
@@ -26,7 +26,7 @@ deps: $(elpa_dir)
 test-compile: | $(elpa_dir)
 	$(run_emacs) \
 		--eval '(setq byte-compile-error-on-warn t)' \
-		--batch -f batch-byte-compile *.el
+		 -f batch-byte-compile *.el
 
 .PHONY: clean
 clean: ## Clean files

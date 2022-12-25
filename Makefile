@@ -41,6 +41,21 @@ prettify: | $(elpa_dir)
 		--eval '(save-buffer)' \
 		> /dev/null
 
+.PHONY: prettify-staged
+prettify-staged: staged_el_files := git diff -z --cached --name-only --diff-filter=ACMR | grep -z '\.el'
+prettify-staged:
+	modified=$$($(staged_el_files) | xargs -0); \
+	if [ -n "$$modified" ]; then \
+		for file in $$modified; do git show ":$$file" >"$$file.tmp.el"; done; \
+		$(MAKE) prettify el_files="($(staged_el_files); find . -name '*.tmp.el' -print0)"; \
+		for file in $$modified; do \
+			hash=$$(git hash-object -w "$$file.tmp.el"); \
+			git update-index --add --cacheinfo 100644 "$$hash" "$$file"; \
+		done; \
+		find . -name '*.tmp.el' -delete; \
+		if [ -z "$$(git diff --cached --name-only)" ]; then echo "No files left after formatting" 1>&2; exit 1; fi \
+	fi
+
 .PHONY: clean
 clean: ## Clean files
 	rm -f *.elc

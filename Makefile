@@ -43,8 +43,9 @@ test-compile: | $(elpa_dir)
 
 .PHONY: prettify
 prettify: ## Auto-format code
+prettify: el_files := find . -name '*.el' -print0
 prettify: | $(elpa_dir)
-	find . -name '*.el' -print0 | xargs -P 0 -0 -I {} \
+	$(el_files) | xargs -P 0 -0 -I {} \
 		$(run_emacs) \
 		$(addprefix -l ,$(dependencies)) \
 		{} \

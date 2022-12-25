@@ -81,7 +81,7 @@
 
 (defun flutter--make-interactive-function (key name)
   "Define a function that sends KEY to the `flutter` process.
-The function's name will be NAME prefixed with 'flutter-'."
+The function's name will be NAME prefixed with \"flutter-\"."
   (let* ((name-str (symbol-name name))
          (funcname (intern (concat "flutter-" name-str))))
     (defalias funcname

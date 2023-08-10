@@ -259,7 +259,7 @@ args."
            (read-string "Args: "))))
   (flutter--with-run-proc
    args
-   (pop-to-buffer-same-window buffer)))
+   (display-buffer buffer)))
 
 ;;;###autoload
 (defun flutter-run-or-hot-reload ()

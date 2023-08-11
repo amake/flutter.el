@@ -77,7 +77,7 @@ clean: ## Clean files
 .PHONY: clobber
 clobber: ## Remove all generated files
 clobber: clean
-	rm -rf $(elpa_dir)
+	rm -rf $(elpa_dir)*
 
 # Hooks
 

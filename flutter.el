@@ -29,6 +29,7 @@
 ;;; Code:
 
 (require 'comint)
+(require 'json)
 (require 'flutter-project)
 (require 'flutter-l10n)
 
@@ -264,10 +265,11 @@ args."
 (defun flutter-devices ()
   "Return a list of devices in strings."
   (let* ((output (shell-command-to-string "flutter devices --machine"))
-         (vec (json-parse-string output))
+         (vec (json-read-from-string output))
          (matches))
-    (mapc (lambda (table)
-            (push (gethash "id" table) matches))
+    (mapc (lambda (alist)
+            (let-alist alist
+              (push .id matches)))
           vec)
     (reverse matches)))
 

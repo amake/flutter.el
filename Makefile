@@ -7,7 +7,7 @@ run_emacs = $(emacs) -Q --batch -L . -L $(elpa_dir) -l package \
 	--eval "(add-to-list 'package-archives '(\"melpa\" . \"https://melpa.org/packages/\") t)" \
 	--eval '(package-initialize)'
 
-dependencies := flycheck dash
+dependencies := flycheck
 test_versions := 25 26 27 28
 
 .PHONY: test

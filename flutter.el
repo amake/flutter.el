@@ -29,6 +29,7 @@
 ;;; Code:
 
 (require 'comint)
+(require 'json)
 (require 'flutter-project)
 (require 'flutter-l10n)
 
@@ -260,6 +261,23 @@ args."
   (flutter--with-run-proc
    args
    (display-buffer buffer)))
+
+(defun flutter-devices ()
+  "Return an alist of devices in (name . ID) format."
+  (let* ((output (shell-command-to-string "flutter devices --machine"))
+         (vec (json-read-from-string output)))
+    (mapcar
+     (lambda (alist) (let-alist alist (cons .name .id)))
+     vec)))
+
+;;;###autoload
+(defun flutter-run-device (device-id)
+  "Start `flutter run` with DEVICE-ID."
+  (interactive
+   (list (let* ((collection (flutter-devices))
+                (choice (completing-read "Device: " collection)))
+           (cdr (assoc choice collection)))))
+  (flutter-run (format "-d %s" device-id)))
 
 ;;;###autoload
 (defun flutter-run-or-hot-reload ()

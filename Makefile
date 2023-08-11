@@ -10,7 +10,7 @@ run_emacs = $(emacs) -Q --batch -L . -L $(elpa_dir) -l package \
 dependencies := flycheck
 dev_dependencies := package-lint
 all_deps := $(dependencies) $(dev_dependencies)
-test_versions := 25 26 27 28
+test_versions := 25 26 27 28 29
 
 .PHONY: test
 test: ## Compile and run unit tests

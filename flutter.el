@@ -261,6 +261,38 @@ args."
    args
    (display-buffer buffer)))
 
+;; XXX: Copied from s.el
+(defun flutter-s-replace (old new s)
+  "Replaces OLD with NEW in S."
+  (declare (pure t) (side-effect-free t))
+  (replace-regexp-in-string (regexp-quote old) new s t t))
+
+(defun flutter-devices ()
+  "Return a list of devices in strings."
+  (let ((output (shell-command-to-string "flutter devices"))
+        (matches))
+    (with-temp-buffer
+      (insert output)
+      (goto-char (point-min))
+      (while (search-forward " • " nil t)
+        (let ((start (point))
+              (match))
+          (when (search-forward " •" nil t)
+            (setq match (buffer-substring start (point))
+                  match (flutter-s-replace "•" "" match)
+                  match (string-trim match))
+            (push match matches)))
+        (forward-line 1)
+        (beginning-of-line)))
+    (reverse matches)))
+
+;;;###autoload
+(defun flutter-run-device (device-id)
+  "Start `flutter run` with DEVICE-ID."
+  (interactive
+   (list (completing-read "Device ID: " (flutter-devices))))
+  (flutter-run (format "-d %s" device-id)))
+
 ;;;###autoload
 (defun flutter-run-or-hot-reload ()
   "Start `flutter run` or hot-reload if already running."

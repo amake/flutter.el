@@ -262,7 +262,7 @@ args."
    args
    (display-buffer buffer)))
 
-(defun flutter-devices ()
+(defun flutter--devices ()
   "Return an alist of devices in (name . ID) format."
   (let* ((output (shell-command-to-string "flutter devices --machine"))
          (vec (json-read-from-string output)))
@@ -274,7 +274,7 @@ args."
 (defun flutter-run-device (device-id)
   "Start `flutter run` with DEVICE-ID."
   (interactive
-   (list (let* ((collection (flutter-devices))
+   (list (let* ((collection (flutter--devices))
                 (choice (completing-read "Device: " collection)))
            (cdr (assoc choice collection)))))
   (flutter-run (format "-d %s" device-id)))

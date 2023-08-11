@@ -39,7 +39,7 @@ deps: $(elpa_dir)
 test-compile: | $(elpa_dir)
 	$(run_emacs) \
 		--eval '(setq byte-compile-error-on-warn t)' \
-		 -f batch-byte-compile *.el
+		-f batch-byte-compile *.el
 
 .PHONY: prettify
 prettify: ## Auto-format code

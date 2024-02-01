@@ -262,9 +262,9 @@ args."
    (list (when current-prefix-arg
            (read-string "Args: "))))
   (flutter--with-run-proc
-   (if flutter-args
-       flutter-args
-     args)
+   (if args
+       args
+     flutter-args)
    (display-buffer buffer)))
 
 (defun flutter--devices ()

@@ -38,6 +38,9 @@
 (defvar flutter-sdk-path nil
   "Path to Flutter SDK.")
 
+(defvar flutter-args nil
+  "Space-delimited string of CLI flags passed to `flutter`.")
+
 
 ;;; Key bindings
 
@@ -259,7 +262,9 @@ args."
    (list (when current-prefix-arg
            (read-string "Args: "))))
   (flutter--with-run-proc
-   args
+   (if flutter-args
+       flutter-args
+     args)
    (display-buffer buffer)))
 
 (defun flutter--devices ()

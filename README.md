@@ -98,5 +98,17 @@ put the Flutter SDK in `/Applications/flutter`:
   (flutter-sdk-path "/Applications/flutter/"))
 ```
 
+## .dir-locals.el
+
+`flutter-args` is used to set default CLI flags passed to `flutter`.
+This variable can be set per project using a `.dir-locals.el` file in project root.
+The following `.dir-locals.el` sets `flutter-args` to build linux executable and
+enables hot reloading on file save using `after-save-hook`.
+
+``` elisp
+((dart-mode . ((flutter-args . "-d linux")
+               (eval . (add-hook 'after-save-hook 'flutter-run-or-hot-reload nil t)))))
+```
+
 # License
 GPL-3

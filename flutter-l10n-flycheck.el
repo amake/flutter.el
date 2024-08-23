@@ -44,7 +44,7 @@
   :command ("flutter" "packages" "pub"
             "run" "intl_translation:extract_to_arb"
             source)
-  :working-directory (lambda (_) (flutter-project-get-root))
+  :working-directory (lambda (_) (ignore-errors (flutter-project-get-root)))
   :modes (dart-mode)
   :enabled flutter-l10n-flycheck--enable-p
   :error-patterns

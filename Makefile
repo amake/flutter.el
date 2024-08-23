@@ -78,6 +78,10 @@ prettify-staged:
 		if [ -z "$$(git diff --cached --name-only)" ]; then echo "No files left after formatting" 1>&2; exit 1; fi \
 	fi
 
+.PHONY: pull
+pull: ## Pull latest Docker images for tests
+	$(foreach _,$(test_versions),docker pull silex/emacs:$(_);)
+
 .PHONY: clean
 clean: ## Clean files
 	rm -f *.elc

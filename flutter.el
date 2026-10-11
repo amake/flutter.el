@@ -41,6 +41,15 @@
 (defvar flutter-run-args nil
   "Space-delimited string of CLI flags passed to `flutter-run'.")
 
+(defvar-local flutter-devtools-url nil
+  "The detected Flutter DevTools URL for the current buffer.")
+
+(defconst flutter--devtools-url-regexp
+  (rx "DevTools debugger and profiler" (*? anychar) "available at:"
+      (* (any "\n\r" space))
+      (group "http://" (+ (not (any "\n\r" space)))))
+  "Regexp matching the Flutter DevTools URL in comint output.")
+
 
 ;;; Key bindings
 
@@ -138,6 +147,13 @@ ARGS is a space-delimited string of CLI flags passed to
           (flutter-mode)))
       ,@body)))
 
+(defun flutter--devtools-output-filter (output)
+  "Scan OUTPUT for a Flutter DevTools URL and store it buffer-locally."
+  (when (string-match flutter--devtools-url-regexp output)
+    (setq flutter-devtools-url (match-string 1 output))
+    (message "Flutter DevTools URL detected: %s" flutter-devtools-url))
+  output)
+
 (defun flutter--get-buffer-create (buffer-or-name)
   "Same as `get-buffer-create' but ensures BUFFER-OR-NAME has our CWD.
 
@@ -227,6 +243,14 @@ The title will be in match 2.")
           ;; `flutter pub` is failing lately, so prefer "real" `pub`
           ((executable-find "pub") "pub run test")
           (t (format "%s pub run test" flutter)))))
+
+(defun flutter-open-devtools ()
+  "Open the detected Flutter DevTools URL in a browser."
+  (interactive)
+  (let ((buffer (get-buffer flutter-buffer-name)))
+    (if (and buffer (buffer-local-value 'flutter-devtools-url buffer))
+        (browse-url (buffer-local-value 'flutter-devtools-url buffer))
+      (error "No Flutter DevTools URL detected.  Is flutter running?"))))
 
 ;;;###autoload
 (define-minor-mode flutter-test-mode
@@ -318,7 +342,9 @@ args."
   "Major mode for `flutter-run'.
 
 \\{flutter-mode-map}"
-  (setq comint-prompt-read-only t))
+  (setq comint-prompt-read-only t)
+  (add-hook 'comint-output-filter-functions
+            #'flutter--devtools-output-filter nil t))
 
 (add-hook 'flutter-mode-hook #'flutter--initialize)
 

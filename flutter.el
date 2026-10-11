@@ -228,6 +228,11 @@ The title will be in match 2.")
           ((executable-find "pub") "pub run test")
           (t (format "%s pub run test" flutter)))))
 
+(defun flutter-clear-screen ()
+  "Clears the flutter buffer."
+  (interactive)
+  (comint-clear-buffer))
+
 ;;;###autoload
 (define-minor-mode flutter-test-mode
   "Toggle Flutter-Test minor mode.
